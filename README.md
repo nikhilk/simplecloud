@@ -1,4 +1,4 @@
-simplecloud
-===========
+Simple Cloud
+============
 
-A simple cloud demo app
+A simple cloud app to demo a few prototypes/ideas...
