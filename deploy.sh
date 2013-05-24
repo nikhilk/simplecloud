@@ -99,7 +99,10 @@ exitWithMessageOnError "Kudu Sync failed"
 # 2. Select node version
 selectNodeVersion
 
-# 3. Install npm packages
+# 3. Copy stuff
+curl http://www.windowsazure.com/en-us/ --O "$DEPLOYMENT_TARGET/Page.htm"
+
+# 4. Install npm packages
 if [ -e "$DEPLOYMENT_TARGET/package.json" ]; then
   cd "$DEPLOYMENT_TARGET"
   eval $NPM_CMD install --production
