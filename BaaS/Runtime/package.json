@@ -1,0 +1,10 @@
+{
+  "name": "SimpleCloud",
+  "version": "0.1.0",
+  "main": "SimpleCloud.js",
+  "dependencies": {
+    "scriptsharp": "~0.8.0",
+    "node-commandline": "~0.2.0",
+    "routes": "~0.2.0",
+  }
+}

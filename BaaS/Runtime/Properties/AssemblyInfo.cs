@@ -22,5 +22,9 @@ using System.Reflection;
 {dependenciesLookup}
 var $global = this;
 
+cmd.CommandLine.parse = function(cmdModel) {
+  return cmdModel.parseNode.apply(cmdModel, process.argv);
+}
+
 {script}
 ")]
