@@ -30,7 +30,6 @@ internal static class Startup {
             return;
         }
 
-        Application app = new Application(options);
-        app.Run();
+        Application.Current.Run(options);
     }
 }

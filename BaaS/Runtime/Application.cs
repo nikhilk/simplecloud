@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Serialization;
+using NodeApi;
+using NodeApi.IO;
 using SimpleCloud.Data;
 using SimpleCloud.Server;
 
@@ -10,18 +13,15 @@ namespace SimpleCloud {
 
     public sealed class Application {
 
+        public static readonly Application Current = new Application();
+
         private ApplicationOptions _options;
 
         private DataSpace _data;
         private ScriptManager _scripts;
-
         private ServerRuntime _runtime;
 
-        public Application(ApplicationOptions options) {
-            _options = options;
-
-            _data = new DataSpace(this);
-            _scripts = new ScriptManager(this);
+        private Application() {
         }
 
         public DataSpace Data {
@@ -42,7 +42,40 @@ namespace SimpleCloud {
             }
         }
 
-        public void Run() {
+        public Dictionary<string, object> GetConfigurationObject(string name) {
+            string configPath = Path.Join(_options.Path, "config", name + ".json");
+            return LoadConfiguration(configPath, /* createEmptyIfNeeded */ true);
+        }
+
+        public static Dictionary<string, object> LoadConfiguration(string path, bool createEmptyIfNeeded) {
+            if (FileSystem.ExistsSync(path)) {
+                string data = FileSystem.ReadFileTextSync(path, Encoding.UTF8);
+                return Json.ParseData<Dictionary<string, object>>(data);
+            }
+
+            return createEmptyIfNeeded ? new Dictionary<string, object>() : null;
+        }
+
+        public extern void ReportError(string error);
+
+        public void ReportError(string message, bool fatal) {
+            fatal = Script.Value(fatal, true);
+
+            if (fatal) {
+                Console.Error(message);
+                Node.Process.Abort();
+            }
+            else {
+                Console.Warn(message);
+            }
+        }
+
+        public void Run(ApplicationOptions options) {
+            _options = options;
+
+            _data = new DataSpace();
+            _scripts = new ScriptManager();
+
             List<IServerModule> modules = new List<IServerModule>();
             List<IServerHandler> handlers = new List<IServerHandler>();
 

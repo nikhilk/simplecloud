@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;CODE_ANALYSIS;SCRIPTSHARP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>0028, 1591, 1684</NoWarn>
+    <NoWarn>0028, 1591, 1684, 0626</NoWarn>
     <DocumentationFile>
     </DocumentationFile>
     <DebugType>none</DebugType>
@@ -35,7 +35,7 @@
     <DefineConstants>CODE_ANALYSIS;SCRIPTSHARP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>0028, 1591, 1684</NoWarn>
+    <NoWarn>0028, 1591, 1684, 0626</NoWarn>
     <DocumentationFile>
     </DocumentationFile>
     <DebugType>none</DebugType>
@@ -55,6 +55,7 @@
     <Compile Include="Data\DataCollection.cs" />
     <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Data\DataSource.cs" />
+    <Compile Include="Data\Providers\SqlDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptManager.cs" />
     <Compile Include="Server\Handlers\DataHandler.cs" />
