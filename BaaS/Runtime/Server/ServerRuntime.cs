@@ -1,4 +1,4 @@
-// ServerApplication.cs
+// ServerRuntime.cs
 //
 
 using System;
@@ -9,7 +9,7 @@ using NodeApi.Network;
 
 namespace SimpleCloud.Server {
 
-    public sealed class ServerApplication : IServerModule {
+    public sealed class ServerRuntime : IServerModule {
 
         private string _path;
         private List<IServerModule> _modules;
@@ -19,13 +19,13 @@ namespace SimpleCloud.Server {
 
         private HttpServer _httpServer;
 
-        public ServerApplication(string path, List<IServerModule> modules, Dictionary<string, IServerHandler> handlers, bool log) {
+        public ServerRuntime(string path, List<IServerModule> modules, List<IServerHandler> handlers, bool log) {
             _path = path;
             _modules = modules;
 
             _router = new ServerRouter();
-            foreach (KeyValuePair<string, IServerHandler> handlerEntry in handlers) {
-                _router.AddRoute(handlerEntry.Key, handlerEntry.Value);
+            foreach (IServerHandler handler in handlers) {
+                _router.AddRoute(handler.RoutePattern, handler);
             }
 
             _modules.Add(this);
@@ -46,7 +46,7 @@ namespace SimpleCloud.Server {
         }
 
         public void InitializeModule(IServerModule nextModule) {
-            // The application does not have a next module - it is always at the very end of the
+            // The runtime does not have a next module - it is always at the very end of the
             // module pipeline, so there is nothing to do here.
         }
 
@@ -74,7 +74,7 @@ namespace SimpleCloud.Server {
         }
 
         public Task<ServerResponse> ProcessRequest(ServerRequest request) {
-            // A application is a server module, which is logically at the end of the module
+            // The runtime is a server module, which is logically at the end of the module
             // pipeline (i.e. doesn't wrap another module), and it is responsible for executing
             // the handler associated with the current route, or generating a not found response.
 

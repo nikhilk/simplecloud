@@ -11,7 +11,7 @@ namespace NodeApi {
     [ScriptDependency("node-commandline", Identifier = "cmd")]
     public static class CommandLine {
 
-        public static Dictionary<string, object> Parse(CommandModel commandModel) {
+        public static object Parse(CommandModel commandModel) {
             return null;
         }
     }

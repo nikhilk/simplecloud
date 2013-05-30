@@ -8,6 +8,10 @@ namespace SimpleCloud.Server {
 
     public interface IServerHandler {
 
+        string RoutePattern {
+            get;
+        }
+
         Task<ServerResponse> ProcessRequest(ServerRequest request);
     }
 }
