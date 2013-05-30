@@ -44,7 +44,7 @@ namespace SimpleCloud.Data {
                     string collectionPath = Path.Join(dataPath, name);
                     string collectionConfigPath = Path.Join(collectionPath, "config.json");
 
-                    Dictionary<string, object> collectionConfig = Application.LoadConfiguration(collectionConfigPath, /* createEmptyIfNeeded */ false);
+                    Dictionary<string, object> collectionConfig = Configuration.Load(collectionConfigPath, /* createEmptyIfNeeded */ false);
                     if (collectionConfig != null) {
                         string sourceName = (string)collectionConfig["source"];
                         DataSource source = _dataSources[sourceName];

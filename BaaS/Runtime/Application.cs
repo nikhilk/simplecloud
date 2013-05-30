@@ -44,16 +44,7 @@ namespace SimpleCloud {
 
         public Dictionary<string, object> GetConfigurationObject(string name) {
             string configPath = Path.Join(_options.Path, "config", name + ".json");
-            return LoadConfiguration(configPath, /* createEmptyIfNeeded */ true);
-        }
-
-        public static Dictionary<string, object> LoadConfiguration(string path, bool createEmptyIfNeeded) {
-            if (FileSystem.ExistsSync(path)) {
-                string data = FileSystem.ReadFileTextSync(path, Encoding.UTF8);
-                return Json.ParseData<Dictionary<string, object>>(data);
-            }
-
-            return createEmptyIfNeeded ? new Dictionary<string, object>() : null;
+            return Configuration.Load(configPath, /* createEmptyIfNeeded */ true);
         }
 
         public extern void ReportError(string error);

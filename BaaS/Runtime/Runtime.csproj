@@ -50,6 +50,7 @@
     <Compile Include="%24\CommandLine.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="ApplicationOptions.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Data\DataSpace.cs" />
     <Compile Include="Data\DataService.cs" />
     <Compile Include="Data\DataCollection.cs" />
