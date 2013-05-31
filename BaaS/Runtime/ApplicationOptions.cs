@@ -11,7 +11,7 @@ namespace SimpleCloud {
     [ScriptName("Object")]
     public sealed class ApplicationOptions {
 
-        public bool Log;
+        public bool Logs;
         public string Path;
         public int Port;
     }

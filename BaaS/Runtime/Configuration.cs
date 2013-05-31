@@ -22,12 +22,18 @@ namespace SimpleCloud {
         }
 
         public static Dictionary<string, object> Load(string path, bool createEmptyIfNeeded) {
-            if (FileSystem.ExistsSync(path)) {
-                string data = FileSystem.ReadFileTextSync(path, Encoding.UTF8);
-                return Json.ParseData<Dictionary<string, object>>(data, EvaluateExternalValue);
-            }
+            try {
+                if (FileSystem.ExistsSync(path)) {
+                    string data = FileSystem.ReadFileTextSync(path, Encoding.UTF8);
+                    return Json.ParseData<Dictionary<string, object>>(data, EvaluateExternalValue);
+                }
 
-            return createEmptyIfNeeded ? new Dictionary<string, object>() : null;
+                return createEmptyIfNeeded ? new Dictionary<string, object>() : null;
+            }
+            catch (Exception e) {
+                Runtime.Abort("Error loading configuration from '%s' - %s", path, e.Message);
+                return null;
+            }
         }
     }
 }

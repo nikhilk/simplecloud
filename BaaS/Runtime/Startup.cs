@@ -22,6 +22,8 @@ internal static class Startup {
 
             options.Port = Script.Or<int>(options.Port, Int32.Parse(Node.Process.Environment["PORT"]), 1337);
             options.Path = Script.Or(options.Path, Node.Process.GetCurrentDirectory());
+
+            Runtime.EnableTrace = options.Logs;
         }
         catch (Exception e) {
             Console.Log(e.Message);

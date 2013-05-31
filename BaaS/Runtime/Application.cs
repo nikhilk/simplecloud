@@ -7,6 +7,7 @@ using System.Serialization;
 using NodeApi;
 using NodeApi.IO;
 using SimpleCloud.Data;
+using SimpleCloud.Scripting;
 using SimpleCloud.Server;
 
 namespace SimpleCloud {
@@ -57,25 +58,11 @@ namespace SimpleCloud {
             return Configuration.Load(configPath, /* createEmptyIfNeeded */ true);
         }
 
-        public static extern void ReportError(string error);
-
-        public static void ReportError(string message, bool fatal) {
-            fatal = Script.Value(fatal, true);
-
-            if (fatal) {
-                Console.Error(message);
-                Node.Process.Abort();
-            }
-            else {
-                Console.Warn(message);
-            }
-        }
-
         public void Run() {
             List<IServerModule> modules = new List<IServerModule>();
             List<IServerHandler> handlers = new List<IServerHandler>();
 
-            _runtime = new ServerRuntime(_options.Path, modules, handlers, _options.Log);
+            _runtime = new ServerRuntime(_options.Path, modules, handlers);
             _runtime.Run(_options.Port);
         }
     }

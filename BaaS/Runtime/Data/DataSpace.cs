@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Serialization;
+using NodeApi;
 using NodeApi.IO;
 using SimpleCloud.Data.Providers;
 
@@ -26,6 +27,8 @@ namespace SimpleCloud.Data {
         }
 
         private void Load() {
+            Runtime.TraceInfo("Loading DataSpace...");
+
             Dictionary<string, object> configuration = _app.GetConfigurationObject("data");
             Dictionary<string, Dictionary<string, object>> sources = (Dictionary<string, Dictionary<string, object>>)configuration["sources"];
 
@@ -57,11 +60,11 @@ namespace SimpleCloud.Data {
                             _dataCollections[sourceName] = new DataCollection(sourceName, source, collectionConfig);
                         }
                         else {
-                            Application.ReportError("Unable to find a data source named '" + sourceName + "' for '" + name + "' data collection.");
+                            Runtime.Abort("Unable to find a data source named '%s' for '%s' data collection.", sourceName, name);
                         }
                     }
                     else {
-                        Application.ReportError("Found a data collection directory named '" + name + "' without any configuration. Ignoring.", /* fatal */ false);
+                        Runtime.TraceError("Configuration not found in data collection directory named '%s'. Ignoring.", name);
                     }
                 }
             }
@@ -69,6 +72,7 @@ namespace SimpleCloud.Data {
 
         private void LoadDataSources(Dictionary<string, Dictionary<string, object>> configuration) {
             foreach (KeyValuePair<string, Dictionary<string, object>> sourceEntry in configuration) {
+                string name = sourceEntry.Key;
                 string providerType = (string)sourceEntry.Value["provider"];
                 DataProvider provider = null;
 
@@ -78,10 +82,12 @@ namespace SimpleCloud.Data {
 
                 if (provider != null) {
                     provider.Initialize(sourceEntry.Value);
-                    _dataSources[sourceEntry.Key] = new DataSource(sourceEntry.Key, provider);
+                    _dataSources[name] = new DataSource(name, provider);
+
+                    Runtime.TraceInfo("Created data source '%s'", name);
                 }
                 else {
-                    Application.ReportError("Invalid data provider attribute '" + providerType + "'.");
+                    Runtime.Abort("Invalid data provider attribute '%s'.", providerType);
                 }
             }
         }

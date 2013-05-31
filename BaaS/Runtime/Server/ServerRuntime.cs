@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NodeApi;
 using NodeApi.IO;
 using NodeApi.Network;
 
@@ -15,11 +16,9 @@ namespace SimpleCloud.Server {
         private List<IServerModule> _modules;
         private ServerRouter _router;
 
-        private bool _log;
-
         private HttpServer _httpServer;
 
-        public ServerRuntime(string path, List<IServerModule> modules, List<IServerHandler> handlers, bool log) {
+        public ServerRuntime(string path, List<IServerModule> modules, List<IServerHandler> handlers) {
             _path = path;
             _modules = modules;
 
@@ -32,8 +31,6 @@ namespace SimpleCloud.Server {
             for (int i = 0, moduleCount = _modules.Count; i < moduleCount - 2; i++) {
                 _modules[i].InitializeModule(_modules[i + 1]);
             }
-
-            _log = log;
 
             _httpServer = Http.CreateServer();
             _httpServer.Request += OnHttpServerRequest;
@@ -59,18 +56,15 @@ namespace SimpleCloud.Server {
 
             responseTask.Done(delegate(ServerResponse response) {
                 response.Write(httpResponse);
+                
+                Runtime.TraceInfo("%d : %s %s", response.StatusCode, httpRequest.Method, httpRequest.Url);
             })
             .Fail(delegate(Exception e) {
                 httpResponse.WriteHead(HttpStatusCode.InternalServerError, "Internal Server Error");
                 httpResponse.End();
-            });
 
-            if (_log) {
-                responseTask.ContinueWith(delegate (Task<ServerResponse> task) {
-                    Console.Log(((task.Status == TaskStatus.Done) ? task.Result.StatusCode : HttpStatusCode.InternalServerError) +
-                                " : " + httpRequest.Method + " " + httpRequest.Url);
-                });
-            }
+                Runtime.TraceInfo("500 : %s %s", httpRequest.Method, httpRequest.Url);
+            });
         }
 
         public Task<ServerResponse> ProcessRequest(ServerRequest request) {
@@ -96,9 +90,7 @@ namespace SimpleCloud.Server {
 
         public void Run(int port) {
             _httpServer.Listen(port);
-            if (_log) {
-                Console.Log("Started HTTP server. Listening on http://localhost:" + port + " ...");
-            }
+            Runtime.TraceAlert("Started HTTP server. Listening on http://localhost:%d", port);
         }
     }
 }

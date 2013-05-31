@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SimpleCloud {
+namespace SimpleCloud.Scripting {
 
     public sealed class ScriptManager {
 

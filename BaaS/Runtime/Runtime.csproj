@@ -42,6 +42,7 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="%24\Runtime.cs" />
     <Content Include="package.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -58,7 +59,10 @@
     <Compile Include="Data\DataSource.cs" />
     <Compile Include="Data\Providers\SqlDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptManager.cs" />
+    <Compile Include="Scripting\Objects\AppObject.cs" />
+    <Compile Include="Scripting\Objects\DataRequestObject.cs" />
+    <Compile Include="Scripting\Objects\DataObject.cs" />
+    <Compile Include="Scripting\ScriptManager.cs" />
     <Compile Include="Server\Handlers\DataHandler.cs" />
     <Compile Include="Server\ServerRuntime.cs" />
     <Compile Include="Server\ServerRouter.cs" />
