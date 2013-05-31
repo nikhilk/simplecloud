@@ -43,29 +43,32 @@ namespace SimpleCloud.Data {
         private void LoadDataCollections() {
             string dataPath = Path.Join(_app.Options.Path, "data");
 
-            // TODO: Check if its a directory
-            if (FileSystem.ExistsSync(dataPath)) {
-                string[] names = FileSystem.ReadDirectorySync(dataPath);
+            // TODO: Also check if its a directory
+            if (FileSystem.ExistsSync(dataPath) == false) {
+                Runtime.TraceWarning("Data directory '%s' was not found. No data collections were loaded.", dataPath);
+                return;
+            }
 
-                foreach (string name in names) {
-                    string collectionPath = Path.Join(dataPath, name);
-                    string collectionConfigPath = Path.Join(collectionPath, "config.json");
+            foreach (string name in FileSystem.ReadDirectorySync(dataPath)) {
+                string collectionPath = Path.Join(dataPath, name);
+                string collectionConfigPath = Path.Join(collectionPath, "config.json");
 
-                    Dictionary<string, object> collectionConfig = Configuration.Load(collectionConfigPath, /* createEmptyIfNeeded */ false);
-                    if (collectionConfig != null) {
-                        string sourceName = (string)collectionConfig["source"];
-                        DataSource source = _dataSources[sourceName];
+                Dictionary<string, object> collectionConfig = Configuration.Load(collectionConfigPath, /* createEmptyIfNeeded */ false);
+                if (collectionConfig != null) {
+                    string sourceName = (string)collectionConfig["source"];
+                    DataSource source = _dataSources[sourceName];
 
-                        if (source != null) {
-                            _dataCollections[sourceName] = new DataCollection(sourceName, source, collectionConfig);
-                        }
-                        else {
-                            Runtime.Abort("Unable to find a data source named '%s' for '%s' data collection.", sourceName, name);
-                        }
+                    if (source != null) {
+                        _dataCollections[sourceName] = new DataCollection(name, source, collectionConfig);
+
+                        Runtime.TraceInfo("Created data collection '%s' associated with data source named '%s'.", name, sourceName);
                     }
                     else {
-                        Runtime.TraceError("Configuration not found in data collection directory named '%s'. Ignoring.", name);
+                        Runtime.Abort("Unable to find a data source named '%s' for '%s' data collection.", sourceName, name);
                     }
+                }
+                else {
+                    Runtime.TraceError("Configuration not found in data collection directory named '%s'. Ignoring.", name);
                 }
             }
         }
@@ -74,8 +77,8 @@ namespace SimpleCloud.Data {
             foreach (KeyValuePair<string, Dictionary<string, object>> sourceEntry in configuration) {
                 string name = sourceEntry.Key;
                 string providerType = (string)sourceEntry.Value["provider"];
-                DataProvider provider = null;
 
+                DataProvider provider = null;
                 if (providerType == "sql") {
                     provider = new SqlDataProvider();
                 }
@@ -84,7 +87,7 @@ namespace SimpleCloud.Data {
                     provider.Initialize(sourceEntry.Value);
                     _dataSources[name] = new DataSource(name, provider);
 
-                    Runtime.TraceInfo("Created data source '%s'", name);
+                    Runtime.TraceInfo("Created data source '%s' with '%s' data provider", name, providerType);
                 }
                 else {
                     Runtime.Abort("Invalid data provider attribute '%s'.", providerType);
