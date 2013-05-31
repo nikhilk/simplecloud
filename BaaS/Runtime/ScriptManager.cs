@@ -8,7 +8,10 @@ namespace SimpleCloud {
 
     public sealed class ScriptManager {
 
-        public ScriptManager() {
+        private Application _app;
+
+        public ScriptManager(Application app) {
+            _app = app;
         }
     }
 }

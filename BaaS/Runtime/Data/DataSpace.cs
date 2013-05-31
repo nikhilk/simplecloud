@@ -11,10 +11,14 @@ namespace SimpleCloud.Data {
 
     public sealed class DataSpace {
 
+        private Application _app;
+
         private Dictionary<string, DataSource> _dataSources;
         private Dictionary<string, DataCollection> _dataCollections;
 
-        public DataSpace() {
+        public DataSpace(Application app) {
+            _app = app;
+
             _dataSources = new Dictionary<string, DataSource>();
             _dataCollections = new Dictionary<string, DataCollection>();
 
@@ -22,7 +26,7 @@ namespace SimpleCloud.Data {
         }
 
         private void Load() {
-            Dictionary<string, object> configuration = Application.Current.GetConfigurationObject("data");
+            Dictionary<string, object> configuration = _app.GetConfigurationObject("data");
             Dictionary<string, Dictionary<string, object>> sources = (Dictionary<string, Dictionary<string, object>>)configuration["sources"];
 
             if (sources != null) {
@@ -34,7 +38,7 @@ namespace SimpleCloud.Data {
         }
 
         private void LoadDataCollections() {
-            string dataPath = Path.Join(Application.Current.Options.Path, "data");
+            string dataPath = Path.Join(_app.Options.Path, "data");
 
             // TODO: Check if its a directory
             if (FileSystem.ExistsSync(dataPath)) {
@@ -53,11 +57,11 @@ namespace SimpleCloud.Data {
                             _dataCollections[sourceName] = new DataCollection(sourceName, source, collectionConfig);
                         }
                         else {
-                            Application.Current.ReportError("Unable to find a data source named '" + sourceName + "' for '" + name + "' data collection.");
+                            Application.ReportError("Unable to find a data source named '" + sourceName + "' for '" + name + "' data collection.");
                         }
                     }
                     else {
-                        Application.Current.ReportError("Found a data collection directory named '" + name + "' without any configuration. Ignoring.", /* fatal */ false);
+                        Application.ReportError("Found a data collection directory named '" + name + "' without any configuration. Ignoring.", /* fatal */ false);
                     }
                 }
             }
@@ -77,7 +81,7 @@ namespace SimpleCloud.Data {
                     _dataSources[sourceEntry.Key] = new DataSource(sourceEntry.Key, provider);
                 }
                 else {
-                    Application.Current.ReportError("Invalid data provider attribute '" + providerType + "'.");
+                    Application.ReportError("Invalid data provider attribute '" + providerType + "'.");
                 }
             }
         }
