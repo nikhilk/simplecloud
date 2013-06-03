@@ -48,17 +48,16 @@
     </Content>
     <None Include="packages.config" />
     <None Include="Properties\FxCop.ruleset" />
-    <Compile Include="%24\CommandLine.cs" />
-    <Compile Include="Application.cs" />
-    <Compile Include="ApplicationOptions.cs" />
-    <Compile Include="Configuration.cs" />
-    <Compile Include="Data\DataSpace.cs" />
-    <Compile Include="Data\DataService.cs" />
-    <Compile Include="Data\DataCollection.cs" />
-    <Compile Include="Data\DataProvider.cs" />
-    <Compile Include="Data\DataSource.cs" />
-    <Compile Include="Data\Providers\SqlDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="%24\CommandLine.cs" />
+    <Compile Include="Data\DataOperation.cs" />
+    <Compile Include="Data\DataQuery.cs" />
+    <Compile Include="Data\DataRequest.cs" />
+    <Compile Include="Data\DataSpace.cs" />
+    <Compile Include="Data\DataCollection.cs" />
+    <Compile Include="Data\DataSource.cs" />
+    <Compile Include="Data\Sources\LocalDataSource.cs" />
+    <Compile Include="Data\Sources\SqlDataSource.cs" />
     <Compile Include="Scripting\Objects\AppObject.cs" />
     <Compile Include="Scripting\Objects\DataRequestObject.cs" />
     <Compile Include="Scripting\Objects\DataObject.cs" />
@@ -71,6 +70,9 @@
     <Compile Include="Server\ServerResponse.cs" />
     <Compile Include="Server\ServerRequest.cs" />
     <Compile Include="Server\ServerRoute.cs" />
+    <Compile Include="Application.cs" />
+    <Compile Include="ApplicationOptions.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

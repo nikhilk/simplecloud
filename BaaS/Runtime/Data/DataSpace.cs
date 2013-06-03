@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Serialization;
 using NodeApi;
 using NodeApi.IO;
-using SimpleCloud.Data.Providers;
+using SimpleCloud.Data.Sources;
 
 namespace SimpleCloud.Data {
 
@@ -24,6 +24,10 @@ namespace SimpleCloud.Data {
             _dataCollections = new Dictionary<string, DataCollection>();
 
             Load();
+        }
+
+        public DataCollection GetCollection(string name) {
+            return _dataCollections[name];
         }
 
         private void Load() {
@@ -59,7 +63,7 @@ namespace SimpleCloud.Data {
                     DataSource source = _dataSources[sourceName];
 
                     if (source != null) {
-                        _dataCollections[sourceName] = new DataCollection(name, source, collectionConfig);
+                        _dataCollections[name] = new DataCollection(name, collectionPath, collectionConfig, source);
 
                         Runtime.TraceInfo("Created data collection '%s' associated with data source named '%s'.", name, sourceName);
                     }
@@ -76,21 +80,18 @@ namespace SimpleCloud.Data {
         private void LoadDataSources(Dictionary<string, Dictionary<string, object>> configuration) {
             foreach (KeyValuePair<string, Dictionary<string, object>> sourceEntry in configuration) {
                 string name = sourceEntry.Key;
-                string providerType = (string)sourceEntry.Value["provider"];
+                string type = (string)sourceEntry.Value["type"];
 
-                DataProvider provider = null;
-                if (providerType == "sql") {
-                    provider = new SqlDataProvider();
+                if (type == "sql") {
+                    _dataSources[name] = new SqlDataSource(_app, name, sourceEntry.Value);
+                    Runtime.TraceInfo("Created sql data source named '%s'.", name);
                 }
-
-                if (provider != null) {
-                    provider.Initialize(sourceEntry.Value);
-                    _dataSources[name] = new DataSource(name, provider);
-
-                    Runtime.TraceInfo("Created data source '%s' with '%s' data provider", name, providerType);
+                else if (type == "local") {
+                    _dataSources[name] = new LocalDataSource(_app, name, sourceEntry.Value);
+                    Runtime.TraceInfo("Created local in-memory data source named '%s'.", name);
                 }
                 else {
-                    Runtime.Abort("Invalid data provider attribute '%s'.", providerType);
+                    Runtime.Abort("Invalid data source attribute '%s'.", type);
                 }
             }
         }

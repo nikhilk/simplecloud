@@ -23,7 +23,7 @@ namespace SimpleCloud.Server {
 
         [ScriptField]
         [ScriptName("params")]
-        public Dictionary<string, object> Parameters {
+        public Dictionary<string, string> Parameters {
             get {
                 return null;
             }

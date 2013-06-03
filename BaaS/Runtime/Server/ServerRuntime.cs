@@ -49,22 +49,33 @@ namespace SimpleCloud.Server {
 
         private void OnHttpServerRequest(HttpServerRequest httpRequest, HttpServerResponse httpResponse) {
             UrlData urlData = Url.Parse(httpRequest.Url, /* parseQueryString */ true);
-            ServerRoute route = _router.Match(urlData.Path);
+            ServerRoute route = _router.Match(urlData.PathName);
+
+            Action<Exception> errorHandler = delegate(Exception e) {
+                httpResponse.WriteHead(HttpStatusCode.InternalServerError, e.Message);
+                httpResponse.End();
+
+                Runtime.TraceInfo("500 : %s %s", httpRequest.Method, httpRequest.Url);
+                return;
+            };
 
             ServerRequest request = new ServerRequest(httpRequest, urlData, route);
-            Task<ServerResponse> responseTask = _modules[0].ProcessRequest(request);
+            Task<ServerResponse> responseTask = null;
+
+            try {
+                responseTask = _modules[0].ProcessRequest(request);
+            }
+            catch (Exception e) {
+                errorHandler(e);
+                return;
+            }
 
             responseTask.Done(delegate(ServerResponse response) {
                 response.Write(httpResponse);
                 
                 Runtime.TraceInfo("%d : %s %s", response.StatusCode, httpRequest.Method, httpRequest.Url);
             })
-            .Fail(delegate(Exception e) {
-                httpResponse.WriteHead(HttpStatusCode.InternalServerError, "Internal Server Error");
-                httpResponse.End();
-
-                Runtime.TraceInfo("500 : %s %s", httpRequest.Method, httpRequest.Url);
-            });
+            .Fail(errorHandler);
         }
 
         public Task<ServerResponse> ProcessRequest(ServerRequest request) {
@@ -83,8 +94,7 @@ namespace SimpleCloud.Server {
                 return handler.ProcessRequest(request);
             }
             else {
-                ServerResponse notFoundResponse = request.CreateResponse(HttpStatusCode.NotFound);
-                return Deferred.Create<ServerResponse>(notFoundResponse).Task;
+                return Deferred.Create<ServerResponse>(ServerResponse.NotFound).Task;
             }
         }
 

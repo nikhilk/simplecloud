@@ -3,12 +3,14 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using SimpleCloud.Data;
 
 namespace SimpleCloud.Scripting.Objects {
 
-    [ScriptImport]
-    [ScriptName("Object")]
     [ScriptObject]
     public sealed class DataObject {
+
+        public DataObject(DataSpace dataSpace) {
+        }
     }
 }

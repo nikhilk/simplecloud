@@ -2,13 +2,18 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace SimpleCloud.Scripting.Objects {
 
-    [ScriptImport]
-    [ScriptName("Object")]
     [ScriptObject]
     public sealed class AppObject {
+
+        public Dictionary<string, object> Settings;
+
+        public AppObject(Application app) {
+            Settings = app.Settings;
+        }
     }
 }

@@ -3,23 +3,55 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SimpleCloud.Data {
 
-    public sealed class DataSource {
+    public abstract class DataSource {
 
+        private Application _app;
         private string _name;
-        private DataProvider _provider;
+        private Dictionary<string, object> _configuration;
 
-        public DataSource(string name, DataProvider provider) {
+        public DataSource(Application app, string name, Dictionary<string, object> configuration) {
+            _app = app;
             _name = name;
-            _provider = provider;
+            _configuration = configuration;
         }
 
-        public string Name {
+        public Application Application {
             get {
-                return _name;
+                return _app;
             }
+        }
+
+        protected Dictionary<string, object> Configuration {
+            get {
+                return _configuration;
+            }
+        }
+
+        public Task<object> Execute(DataRequest request, Dictionary<string, object> options) {
+            if (String.IsNullOrEmpty(request.OperationName) == false) {
+                return Deferred.Create<object>(Script.Undefined).Task;
+            }
+
+            if ((request.Operation == DataOperation.Lookup) || (request.Operation == DataOperation.Query)) {
+                return ExecuteQuery(request, options);
+            }
+            else {
+                return ExecuteNonQuery(request, options);
+            }
+        }
+
+        protected virtual Task<object> ExecuteNonQuery(DataRequest request, Dictionary<string, object> options) {
+            return Deferred.Create<object>(Script.Undefined).Task;
+        }
+
+        protected abstract Task<object> ExecuteQuery(DataRequest request, Dictionary<string, object> options);
+
+        public virtual void Initialize(Application app, Dictionary<string, object> configuration) {
+            _configuration = configuration;
         }
     }
 }

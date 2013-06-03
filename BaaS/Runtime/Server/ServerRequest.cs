@@ -20,6 +20,12 @@ namespace SimpleCloud.Server {
             _route = route;
         }
 
+        public HttpServerRequest HttpRequest {
+            get {
+                return _httpRequest;
+            }
+        }
+
         public ServerRoute Route {
             get {
                 return _route;
@@ -30,10 +36,6 @@ namespace SimpleCloud.Server {
             get {
                 return _urlData;
             }
-        }
-
-        public ServerResponse CreateResponse(HttpStatusCode statusCode) {
-            return new ServerResponse(statusCode);
         }
     }
 }

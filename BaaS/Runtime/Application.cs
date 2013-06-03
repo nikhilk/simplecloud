@@ -9,6 +9,7 @@ using NodeApi.IO;
 using SimpleCloud.Data;
 using SimpleCloud.Scripting;
 using SimpleCloud.Server;
+using SimpleCloud.Server.Handlers;
 
 namespace SimpleCloud {
 
@@ -60,7 +61,9 @@ namespace SimpleCloud {
 
         public void Run() {
             List<IServerModule> modules = new List<IServerModule>();
-            List<IServerHandler> handlers = new List<IServerHandler>();
+            List<IServerHandler> handlers = new List<IServerHandler>(
+                new DataHandler(_data)
+            );
 
             _runtime = new ServerRuntime(_options.Path, modules, handlers);
             _runtime.Run(_options.Port);

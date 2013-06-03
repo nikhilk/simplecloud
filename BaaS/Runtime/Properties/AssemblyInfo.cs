@@ -48,6 +48,7 @@ function _traceInfo() {
 }
 function _traceObject(name, obj) {
   if (_traceEnabled) {
+    util.print('---- ');
     util.log(name + ': ' + util.inspect(obj));
   }
 }
