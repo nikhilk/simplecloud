@@ -6,5 +6,6 @@
     "scriptsharp": "~0.8.0",
     "node-commandline": "~0.2.0",
     "routes": "~0.2.0",
+    "edge": "~0.7.11"
   }
 }
