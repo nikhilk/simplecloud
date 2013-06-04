@@ -16,9 +16,10 @@ namespace SimpleCloud.Scripting.Objects {
         public string OperationName;
 
         public string ID;
+
         public string Partition;
         public DataQuery Query;
-        public object Item;
+        public Dictionary<string, object> Item;
 
         public Func<Dictionary<string, object>, Task<object>> Execute;
 
@@ -27,11 +28,16 @@ namespace SimpleCloud.Scripting.Objects {
             OperationName = request.OperationName;
 
             ID = request.Query.ID;
-            Partition = request.Query.Partition;
+
+            Partition = request.Partition;
             Query = request.Query;
             Item = request.Item;
 
             Execute = delegate(Dictionary<string, object> options) {
+                request.Partition = Partition;
+                request.Query = Query;
+                request.Item = Item;
+
                 return request.Query.Collection.Source.Execute(request, options);
             };
         }

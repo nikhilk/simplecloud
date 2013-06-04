@@ -63,7 +63,11 @@ namespace SimpleCloud.Server.Handlers {
                     return null;
             }
 
-            return new DataRequest(new DataQuery(collection, id, partition), operation, operationName);
+            DataRequest dataRequest = new DataRequest(operation, operationName, serverRequest.UrlData.Query);
+            dataRequest.Query = new DataQuery(collection, id);
+            dataRequest.Partition = partition;
+
+            return dataRequest;
         }
 
         private ServerResponse CreateServerResponse(DataRequest request, object result) {
@@ -125,7 +129,7 @@ namespace SimpleCloud.Server.Handlers {
 
                     Task<ServerResponse> executeTask = null;
                     try {
-                        dataRequest.SetItem((Dictionary<string, object>)dataTask.Result);
+                        dataRequest.Item = (Dictionary<string, object>)dataTask.Result;
                         executeTask = ExecuteRequest(collection, dataRequest);
                     }
                     catch (Exception e) {

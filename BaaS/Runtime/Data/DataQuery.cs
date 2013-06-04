@@ -8,9 +8,8 @@ namespace SimpleCloud.Data {
 
     public sealed class DataQuery {
 
-        private DataCollection _collection;
-        private string _id;
-        private string _partition;
+        private readonly DataCollection _collection;
+        private readonly string _id;
 
         private List<Func<object, bool>> _filters;
         private List<Func<object, object>> _selectors;
@@ -18,10 +17,9 @@ namespace SimpleCloud.Data {
         private int? _skip;
         private int? _take;
 
-        public DataQuery(DataCollection collection, string id, string partition) {
+        internal DataQuery(DataCollection collection, string id) {
             _collection = collection;
             _id = id;
-            _partition = partition;
 
             _filters = null;
             _selectors = null;
@@ -48,14 +46,8 @@ namespace SimpleCloud.Data {
             }
         }
 
-        public string Partition {
-            get {
-                return _partition;
-            }
-        }
-
         private static DataQuery Clone(DataQuery original) {
-            DataQuery clone = new DataQuery(original._collection, original._id, original._partition);
+            DataQuery clone = new DataQuery(original._collection, original._id);
 
             if (original._filters != null) {
                 clone._filters = original._filters.Concat();

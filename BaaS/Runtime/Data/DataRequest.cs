@@ -8,23 +8,26 @@ namespace SimpleCloud.Data {
 
     public sealed class DataRequest {
 
+        private readonly DataOperation _operation;
+        private readonly string _operationName;
+        private readonly Dictionary<string, string> _operationArgs;
+
+        private string _partition;
         private DataQuery _query;
-
-        private DataOperation _operation;
-        private string _operationName;
-
         private Dictionary<string, object> _item;
 
-        public DataRequest(DataQuery query, DataOperation operation, string operationName) {
-            _query = query;
-
+        public DataRequest(DataOperation operation, string operationName, Dictionary<string, string> args) {
             _operation = operation;
             _operationName = operationName;
+            _operationArgs = args;
         }
 
         public Dictionary<string, object> Item {
             get {
                 return _item;
+            }
+            set {
+                _item = value;
             }
         }
 
@@ -34,9 +37,24 @@ namespace SimpleCloud.Data {
             }
         }
 
+        public Dictionary<string, string> OperationArguments {
+            get {
+                return _operationArgs;
+            }
+        }
+
         public string OperationName {
             get {
                 return _operationName;
+            }
+        }
+
+        public string Partition {
+            get {
+                return _partition;
+            }
+            set {
+                _partition = value;
             }
         }
 
@@ -44,10 +62,9 @@ namespace SimpleCloud.Data {
             get {
                 return _query;
             }
-        }
-
-        public void SetItem(Dictionary<string, object> item) {
-            _item = item;
+            set {
+                _query = value;
+            }
         }
     }
 }
