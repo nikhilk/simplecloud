@@ -11,15 +11,16 @@ using NodeApi.IO;
 namespace SimpleCloud.Data.Sources {
 
     public sealed class SqlService {
-
+        
+        private static Action<object, AsyncResultCallback<object>> _executor;
+        
         private string _connectionString;
-        private Action<object, AsyncResultCallback<object>> _executor;
 
         internal SqlService(string connectionString) {
             _connectionString = connectionString;
         }
 
-        private void EnsureExecutor() {
+        private static void EnsureExecutor() {
             if (_executor == null) {
                 ManagedLibrary implementation = new ManagedLibrary();
                 implementation.AssemblyFile = Path.Join((string)Script.Literal("__dirname"), "SqlEdge.dll");

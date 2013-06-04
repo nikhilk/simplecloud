@@ -10,18 +10,20 @@ namespace SimpleCloud.Data.Sources {
 
     public sealed class SqlDataSource : DataSource {
 
-        private SqlService _sqlService;
+        private string _connectionString;
         private string _schemaName;
+
+        private SqlService _sqlService;
 
         public SqlDataSource(Application app, string name, Dictionary<string, object> configuration)
             : base(app, name, configuration) {
-            string connectionString = (string)configuration["connectionString"];
-            if (String.IsNullOrEmpty(connectionString)) {
+            _connectionString = (string)configuration["connectionString"];
+            if (String.IsNullOrEmpty(_connectionString)) {
                 Runtime.Abort("No connection string was specified in the configuration for the '%s' data source.", name);
             }
 
             _schemaName = Script.Or((string)configuration["schemaName"], "dbo");
-            _sqlService = new SqlService(connectionString);
+            _sqlService = new SqlService(_connectionString);
         }
 
         private string BuildInsertCommand(string tableName, DataRequest request, List<object> parameters) {
@@ -131,6 +133,10 @@ namespace SimpleCloud.Data.Sources {
                 string command = "select top 10 * from " + tableName;
                 return _sqlService.Sql(command, null);
             }
+        }
+
+        public override object GetService(Dictionary<string, object> options) {
+            return new SqlService(_connectionString);
         }
     }
 }

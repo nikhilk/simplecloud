@@ -50,6 +50,10 @@ namespace SimpleCloud.Data {
 
         protected abstract Task<object> ExecuteQuery(DataRequest request, Dictionary<string, object> options);
 
+        public virtual object GetService(Dictionary<string, object> options) {
+            return null;
+        }
+
         public virtual void Initialize(Application app, Dictionary<string, object> configuration) {
             _configuration = configuration;
         }
