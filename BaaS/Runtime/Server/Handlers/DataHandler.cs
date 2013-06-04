@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Serialization;
 using System.Threading;
 using NodeApi;
-using NodeApi.IO;
 using NodeApi.Network;
 using SimpleCloud.Data;
 
@@ -110,25 +108,17 @@ namespace SimpleCloud.Server.Handlers {
             if ((dataRequest.Operation == DataOperation.Insert) ||
                 (dataRequest.Operation == DataOperation.Update) ||
                 (dataRequest.Operation == DataOperation.Merge)) {
-                request.HttpRequest.SetEncoding(Encoding.UTF8);
-
                 Deferred<ServerResponse> deferred = Deferred.Create<ServerResponse>();
 
-                string postedContent = String.Empty;
-                request.HttpRequest.Data += delegate(string chunk) {
-                    postedContent += chunk;
-                };
-                request.HttpRequest.End += delegate() {
-                    try {
-                        dataRequest.SetItem(Json.ParseData<Dictionary<string, object>>(postedContent));
-                    }
-                    catch {
-                        deferred.Resolve(ServerResponse.CreateRequestError("Invalid JSON in request body."));
+                request.GetData().ContinueWith(delegate(Task<object> dataTask) {
+                    if (dataTask.Status == TaskStatus.Failed) {
+                        deferred.Reject(dataTask.Error);
                         return;
                     }
 
                     Task<ServerResponse> executeTask = null;
                     try {
+                        dataRequest.SetItem((Dictionary<string, object>)dataTask.Result);
                         executeTask = ExecuteRequest(collection, dataRequest);
                     }
                     catch (Exception e) {
@@ -144,7 +134,7 @@ namespace SimpleCloud.Server.Handlers {
                             deferred.Resolve(ServerResponse.CreateServerError(t.Error.Message));
                         }
                     });
-                };
+                });
 
                 return deferred.Task;
             }
