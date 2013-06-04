@@ -30,6 +30,10 @@ namespace SimpleCloud.Data {
             return _dataCollections[name];
         }
 
+        public DataSource GetSource(string name) {
+            return _dataSources[name];
+        }
+
         private void Load() {
             Runtime.TraceInfo("Loading DataSpace...");
 
