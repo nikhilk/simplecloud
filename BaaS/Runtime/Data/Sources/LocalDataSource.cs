@@ -20,14 +20,14 @@ namespace SimpleCloud.Data.Sources {
             Dictionary<string, Dictionary<string, object>> set = GetDataSet(request.Query);
             string id = request.Query.ID;
 
-            object result = null;
+            object result = false;
             if (request.Operation == DataOperation.Insert) {
                 if (set.ContainsKey(id) == false) {
                     Dictionary<string, object> item = request.Item;
                     item["id"] = id;
 
                     set[id] = item;
-                    result = item;
+                    result = true;
                 }
             }
             else if (request.Operation == DataOperation.Update) {
@@ -36,7 +36,7 @@ namespace SimpleCloud.Data.Sources {
                     item["id"] = id;
 
                     set[id] = item;
-                    result = item;
+                    result = true;
                 }
             }
             else if (request.Operation == DataOperation.Merge) {
@@ -49,7 +49,7 @@ namespace SimpleCloud.Data.Sources {
                     }
                     existingItem["id"] = id;
 
-                    result = existingItem;
+                    result = true;
                 }
             }
             else if (request.Operation == DataOperation.Delete_) {

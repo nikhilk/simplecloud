@@ -71,19 +71,26 @@ namespace SimpleCloud.Server.Handlers {
                 return new ServerResponse(HttpStatusCode.MethodNotAllowed);
             }
             else if (Script.IsNull(result)) {
-                if (request.Operation == DataOperation.Query) {
+                if (request.Operation == DataOperation.Lookup) {
+                    return ServerResponse.NotFound;
+                }
+                else if (request.Operation == DataOperation.Query) {
                     return new ServerResponse(HttpStatusCode.OK).AddObjectContent(new object[0]);
                 }
-                else if (request.Operation == DataOperation.Insert) {
+            }
+            else if (result is bool) {
+                if ((Script.Boolean(result) == false) && (request.Operation == DataOperation.Insert)) {
                     return ServerResponse.Conflict;
+                }
+                if (Script.Boolean(result)) {
+                    return ServerResponse.NoContent;
                 }
                 else {
                     return ServerResponse.NotFound;
                 }
             }
-            else {
-                return new ServerResponse(HttpStatusCode.OK).AddObjectContent(result);
-            }
+
+            return new ServerResponse(HttpStatusCode.OK).AddObjectContent(result);
         }
 
         public Task<ServerResponse> ProcessRequest(ServerRequest request) {
