@@ -42,12 +42,14 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="%24\Edge.cs" />
     <Compile Include="%24\Runtime.cs" />
     <Content Include="package.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
     <None Include="Properties\FxCop.ruleset" />
+    <Compile Include="Data\Sources\SqlService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="%24\CommandLine.cs" />
     <Compile Include="Data\DataOperation.cs" />
