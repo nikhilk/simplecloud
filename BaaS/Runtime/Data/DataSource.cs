@@ -31,6 +31,12 @@ namespace SimpleCloud.Data {
             }
         }
 
+        protected string Name {
+            get {
+                return _name;
+            }
+        }
+
         public Task<object> Execute(DataRequest request, Dictionary<string, object> options) {
             if (String.IsNullOrEmpty(request.OperationName) == false) {
                 return Deferred.Create<object>(Script.Undefined).Task;
