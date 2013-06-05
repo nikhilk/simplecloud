@@ -14,6 +14,7 @@ namespace SimpleCloud.Scripting.Objects {
 
         public DataOperation Operation;
         public string OperationName;
+        public Dictionary<string, string> Arguments;
 
         public string ID;
 
@@ -26,6 +27,7 @@ namespace SimpleCloud.Scripting.Objects {
         public DataRequestObject(DataRequest request) {
             Operation = request.Operation;
             OperationName = request.OperationName;
+            Arguments = request.OperationArguments;
 
             ID = request.Query.ID;
 

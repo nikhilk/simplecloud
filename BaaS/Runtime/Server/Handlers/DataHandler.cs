@@ -71,26 +71,37 @@ namespace SimpleCloud.Server.Handlers {
         }
 
         private ServerResponse CreateServerResponse(DataRequest request, object result) {
+            DataOperation operation = request.Operation;
             if (Script.IsUndefined(result)) {
                 return new ServerResponse(HttpStatusCode.MethodNotAllowed);
             }
             else if (Script.IsNull(result)) {
-                if (request.Operation == DataOperation.Lookup) {
+                if (operation == DataOperation.Lookup) {
                     return ServerResponse.NotFound;
                 }
-                else if (request.Operation == DataOperation.Query) {
+                else if (operation == DataOperation.Query) {
                     return new ServerResponse(HttpStatusCode.OK).AddObjectContent(new object[0]);
                 }
-            }
-            else if (result is bool) {
-                if ((Script.Boolean(result) == false) && (request.Operation == DataOperation.Insert)) {
-                    return ServerResponse.Conflict;
-                }
-                if (Script.Boolean(result)) {
+                else if (operation == DataOperation.Execute) {
                     return ServerResponse.NoContent;
                 }
-                else {
-                    return ServerResponse.NotFound;
+            }
+
+            if ((operation == DataOperation.Insert) ||
+                (operation == DataOperation.Update) ||
+                (operation == DataOperation.Merge) ||
+                (operation == DataOperation.Delete_)) {
+                if (result is bool) {
+                    bool resultFlag = Script.Boolean(result);
+                    if ((resultFlag == false) && (operation == DataOperation.Insert)) {
+                        return ServerResponse.Conflict;
+                    }
+                    if (resultFlag) {
+                        return ServerResponse.NoContent;
+                    }
+                    else {
+                        return ServerResponse.NotFound;
+                    }
                 }
             }
 

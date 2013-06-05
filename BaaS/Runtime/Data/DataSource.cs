@@ -38,16 +38,20 @@ namespace SimpleCloud.Data {
         }
 
         public Task<object> Execute(DataRequest request, Dictionary<string, object> options) {
-            if ((request.Operation == DataOperation.Lookup) || (request.Operation == DataOperation.Query)) {
+            if (request.Operation == DataOperation.Execute) {
+                return ExecuteCustom(request, options);
+            }
+            else if ((request.Operation == DataOperation.Lookup) || (request.Operation == DataOperation.Query)) {
                 return ExecuteQuery(request, options);
             }
             else {
-                if (String.IsNullOrEmpty(request.OperationName) == false) {
-                    return Deferred.Create<object>(Script.Undefined).Task;
-                }
-
                 return ExecuteNonQuery(request, options);
             }
+        }
+
+        protected virtual Task<object> ExecuteCustom(DataRequest request, Dictionary<string, object> options) {
+            object result = (options != null) ? Script.Or(options["result"], options) : null;
+            return Deferred.Create<object>(result).Task;
         }
 
         protected virtual Task<object> ExecuteNonQuery(DataRequest request, Dictionary<string, object> options) {
