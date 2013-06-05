@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="%24\Edge.cs" />
+    <Compile Include="Data\Sources\TableDataSource.cs" />
     <Compile Include="Runtime.cs" />
     <Content Include="package.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

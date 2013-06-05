@@ -90,12 +90,16 @@ namespace SimpleCloud.Data {
                     _dataSources[name] = new SqlDataSource(_app, name, sourceEntry.Value);
                     Runtime.TraceInfo("Created sql data source named '%s'.", name);
                 }
+                else if (type == "tableStorage") {
+                    _dataSources[name] = new TableDataSource(_app, name, sourceEntry.Value);
+                    Runtime.TraceInfo("Created table storage data source named '%s'.", name);
+                }
                 else if (type == "inproc") {
                     _dataSources[name] = new InprocDataSource(_app, name, sourceEntry.Value);
                     Runtime.TraceInfo("Created local in-memory data source named '%s'.", name);
                 }
                 else {
-                    Runtime.Abort("Invalid data source attribute '%s'.", type);
+                    Runtime.Abort("Missing or invalid type attribute for data source named '%s'.", name);
                 }
             }
         }

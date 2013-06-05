@@ -59,9 +59,5 @@ namespace SimpleCloud.Data {
         public virtual object GetService(Dictionary<string, object> options) {
             return null;
         }
-
-        public virtual void Initialize(Application app, Dictionary<string, object> configuration) {
-            _configuration = configuration;
-        }
     }
 }
