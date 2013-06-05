@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -11,14 +13,16 @@ namespace SimpleCloud.SqlEdge {
 
     internal sealed class SqlDatabase {
 
+        private DbProviderFactory _dbProvider;
         private string _connectionString;
 
-        public SqlDatabase(string connectionString) {
+        public SqlDatabase(string dbProvider, string connectionString) {
+            _dbProvider = DbProviderFactories.GetFactory(dbProvider);
             _connectionString = connectionString;
         }
 
-        private SqlCommand CreateCommand(SqlConnection connection, string commandText, object[] parameters) {
-            SqlCommand command = connection.CreateCommand();
+        private DbCommand CreateCommand(DbConnection connection, string commandText, object[] parameters) {
+            DbCommand command = connection.CreateCommand();
 
             command.CommandText = commandText;
             if (parameters != null) {
@@ -32,7 +36,7 @@ namespace SimpleCloud.SqlEdge {
                         }
                     }
 
-                    SqlParameter parameter = command.CreateParameter();
+                    DbParameter parameter = _dbProvider.CreateParameter();
                     parameter.ParameterName = i.ToString(CultureInfo.InvariantCulture);
                     parameter.Value = parameters[i] ?? DBNull.Value;
 
@@ -43,7 +47,14 @@ namespace SimpleCloud.SqlEdge {
             return command;
         }
 
-        private Dictionary<string, object> CreateRow(SqlDataReader record, string[] columns) {
+        private DbConnection CreateConnection() {
+            DbConnection connection = _dbProvider.CreateConnection();
+            connection.ConnectionString = _connectionString;
+
+            return connection;
+        }
+
+        private Dictionary<string, object> CreateRow(DbDataReader record, string[] columns) {
             Dictionary<string, object> row = new Dictionary<string, object>(StringComparer.Ordinal);
             for (int i = 0; i < columns.Length; i++) {
                 object value = record.GetValue(i);
@@ -67,34 +78,36 @@ namespace SimpleCloud.SqlEdge {
             return row;
         }
 
-        public async Task<Tuple<int, object>> ExecuteAsync(string commandText, object[] parameters) {
+        private async Task<int> ExecuteAsync(string commandText, object[] parameters) {
             int items = 0;
-            object id = null;
 
-            using (SqlConnection connection = new SqlConnection(_connectionString)) {
-                using (SqlCommand command = CreateCommand(connection, commandText, parameters)) {
+            using (DbConnection connection = CreateConnection()) {
+                using (DbCommand command = CreateCommand(connection, commandText, parameters)) {
                     await connection.OpenAsync();
                     items = await command.ExecuteNonQueryAsync();
                 }
-
-                if (commandText.StartsWith("insert ", StringComparison.OrdinalIgnoreCase)) {
-                    using (SqlCommand idCommand = CreateCommand(connection, "SELECT @@Identity", null)) {
-                        id = await idCommand.ExecuteScalarAsync();
-                    }
-                }
             }
 
-            return new Tuple<int, object>(items, id);
+            return items;
         }
 
-        public async Task<List<Dictionary<string, object>>> QueryAsync(string commandText, object[] parameters) {
+        public async Task<object> ExecuteSqlAsync(string connectionString, string command, object[] parameters) {
+            if (command.StartsWith("select ", StringComparison.OrdinalIgnoreCase)) {
+                return await QueryAsync(command, parameters);
+            }
+            else {
+                return await ExecuteAsync(command, parameters);
+            }
+        }
+
+        private async Task<List<Dictionary<string, object>>> QueryAsync(string commandText, object[] parameters) {
             List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
 
-            using (SqlConnection connection = new SqlConnection(_connectionString)) {
-                using (SqlCommand command = CreateCommand(connection, commandText, parameters)) {
+            using (DbConnection connection = CreateConnection()) {
+                using (DbCommand command = CreateCommand(connection, commandText, parameters)) {
                     await connection.OpenAsync();
 
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync()) {
+                    using (DbDataReader reader = await command.ExecuteReaderAsync()) {
                         string[] columns = null;
 
                         while (reader.Read()) {

@@ -25,7 +25,7 @@ namespace SimpleCloud.Data.Sources {
                 ManagedLibrary implementation = new ManagedLibrary();
                 implementation.AssemblyFile = Path.Join((string)Script.Literal("__dirname"), "SqlEdge.dll");
                 implementation.TypeName = "SimpleCloud.SqlEdge.SqlExecutor";
-                implementation.MethodName = "ExecuteSQL";
+                implementation.MethodName = "ExecuteSql";
 
                 _executor = Edge.BindToLibrary(implementation);
             }
