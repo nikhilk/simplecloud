@@ -13,6 +13,7 @@ namespace SimpleCloud.Data.Sources {
 
         private string _schemaName;
         private string _connectionString;
+        private bool _localFile;
         private Dictionary<string, string> _partitions;
 
         public SqlDataSource(Application app, string name, Dictionary<string, object> configuration)
@@ -26,7 +27,8 @@ namespace SimpleCloud.Data.Sources {
 
             _partitions = (Dictionary<string, string>)configuration["partitions"];
 
-            if (Script.Boolean(configuration["localDB"])) {
+            if (Script.Boolean(configuration["localFile"])) {
+                _localFile = true;
                 _connectionString = Path.Join(app.Options.Path, _connectionString);
                 if (_partitions != null) {
                     Dictionary<string, string> resolvedPartitions = new Dictionary<string, string>();
@@ -176,7 +178,7 @@ namespace SimpleCloud.Data.Sources {
                 }
             }
 
-            return new SqlService(connectionString);
+            return new SqlService(connectionString, _localFile);
         }
 
         public override object GetService(Dictionary<string, object> options) {
@@ -191,7 +193,7 @@ namespace SimpleCloud.Data.Sources {
                 }
             }
 
-            return new SqlService(connectionString);
+            return new SqlService(connectionString, _localFile);
         }
 
         private string GetTableName(DataRequest request) {

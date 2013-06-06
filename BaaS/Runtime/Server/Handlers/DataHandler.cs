@@ -104,6 +104,12 @@ namespace SimpleCloud.Server.Handlers {
                     }
                 }
             }
+            else if (operation == DataOperation.Lookup) {
+                Array items = result as Array;
+                if (items != null) {
+                    result = items[0];
+                }
+            }
 
             return new ServerResponse(HttpStatusCode.OK).AddObjectContent(result);
         }

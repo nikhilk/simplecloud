@@ -19,7 +19,7 @@ namespace SimpleCloud.SqlEdge {
             bool useThreadPool = false;
 
             string connectionString = GetParameter<string>(data, "connectionString");
-            if (Path.IsPathRooted(connectionString)) {
+            if (data.ContainsKey("localFile")) {
                 dbProvider = SqlFileDbProvider;
                 useThreadPool = true;
 

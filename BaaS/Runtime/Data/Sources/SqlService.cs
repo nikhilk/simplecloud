@@ -15,9 +15,11 @@ namespace SimpleCloud.Data.Sources {
         private static Action<object, AsyncResultCallback<object>> _executor;
         
         private string _connectionString;
+        private bool _localFile;
 
-        internal SqlService(string connectionString) {
+        internal SqlService(string connectionString, bool localFile) {
             _connectionString = connectionString;
+            _localFile = localFile;
         }
 
         private static void EnsureExecutor() {
@@ -38,6 +40,9 @@ namespace SimpleCloud.Data.Sources {
             executionArgs["connectionString"] = _connectionString;
             executionArgs["command"] = command;
             executionArgs["parameters"] = Script.Or(parameters, null);
+            if (_localFile) {
+                executionArgs["localFile"] = true;
+            }
 
             Deferred<object> deferred = Deferred.Create<object>();
             _executor(executionArgs, delegate(Exception e, object o) {
