@@ -38,14 +38,14 @@ namespace SimpleCloud.Data {
         }
 
         public Task<object> Execute(DataRequest request, Dictionary<string, object> options) {
-            if (String.IsNullOrEmpty(request.OperationName) == false) {
-                return Deferred.Create<object>(Script.Undefined).Task;
-            }
-
             if ((request.Operation == DataOperation.Lookup) || (request.Operation == DataOperation.Query)) {
                 return ExecuteQuery(request, options);
             }
             else {
+                if (String.IsNullOrEmpty(request.OperationName) == false) {
+                    return Deferred.Create<object>(Script.Undefined).Task;
+                }
+
                 return ExecuteNonQuery(request, options);
             }
         }

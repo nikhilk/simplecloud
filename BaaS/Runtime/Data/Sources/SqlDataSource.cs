@@ -128,30 +128,41 @@ namespace SimpleCloud.Data.Sources {
             DataQuery query = request.Query;
             string tableName = GetTableName(request);
 
-            object result = null;
+            string command;
+            object[] parameters = null;
+
             if (query.IsLookup) {
-                string command = "select * from " + tableName + " where id = @0";
-
-                Deferred<object> deferred = Deferred.Create<object>();
-                GetSqlService(request).Sql(command, new object[] { query.ID })
-                    .Done(delegate(object o) {
-                        object[] items = (object[])o;
-                        if ((items != null) && (items.Length != 0)) {
-                            result = items[0];
-                        }
-                    })
-                    .Fail(delegate(Exception e) {
-                        deferred.Reject(e);
-                    });
-
-                return deferred.Task;
+                command = "select * from " + tableName + " where id = @0";
+                parameters = new object[] { query.ID };
             }
             else {
-                // TODO: Apply query
-
-                string command = "select top 10 * from " + tableName;
-                return GetSqlService(request).Sql(command, null);
+                // TODO: Use actual query here to generate a SQL command
+                command = "select top 10 * from " + tableName;
             }
+
+            Deferred<object> deferred = Deferred.Create<object>();
+
+            GetSqlService(request).Sql(command, new object[] { query.ID })
+                .Done(delegate(object o) {
+                    object[] items = (object[])o;
+                    if ((items != null) && (items.Length != 0)) {
+                        if (query.IsLookup) {
+                            deferred.Resolve(items[0]);
+                        }
+                        else {
+                            items = query.Evaluate(items);
+                            deferred.Resolve(items);
+                        }
+                    }
+                    else {
+                        deferred.Resolve(null);
+                    }
+                })
+                .Fail(delegate(Exception e) {
+                    deferred.Reject(e);
+                });
+
+            return deferred.Task;
         }
 
         private SqlService GetSqlService(DataRequest request) {

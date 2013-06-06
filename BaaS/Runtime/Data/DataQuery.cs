@@ -11,8 +11,8 @@ namespace SimpleCloud.Data {
         private readonly DataCollection _collection;
         private readonly string _id;
 
-        private List<Func<object, bool>> _filters;
-        private List<Func<object, object>> _selectors;
+        private List<Function> _filters;
+        private List<Function> _selectors;
         private List<Tuple<string, bool>> _sort;
         private int? _skip;
         private int? _take;
@@ -68,6 +68,35 @@ namespace SimpleCloud.Data {
             return clone;
         }
 
+        public object[] Evaluate(object[] items) {
+            // TODO: This is a very temporary implementation...
+
+            if (_filters == null) {
+                return items;
+            }
+
+            List<object> filteredItems = new List<object>();
+
+            int filterCount = _filters.Count;
+
+            for (int i = 0, itemCount = items.Length; i < itemCount; i++) {
+                object item = items[i];
+                bool match = true;
+                for (int f = 0; f < filterCount; f++) {
+                    if ((bool)_filters[f].Call(item) == false) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    filteredItems.Add(item);
+                }
+            }
+
+            return filteredItems;
+        }
+
         public DataQuery OrderBy(string field) {
             if (IsLookup) {
                 return this;
@@ -96,18 +125,18 @@ namespace SimpleCloud.Data {
             return query;
         }
 
-        public DataQuery Select(Func<object, object> selector) {
+        public DataQuery Select(Function selector) {
             if (IsLookup) {
                 return this;
             }
 
             DataQuery query = DataQuery.Clone(this);
 
-            if (_selectors == null) {
-                _selectors = new List<Func<object, object>>();
+            if (query._selectors == null) {
+                query._selectors = new List<Function>();
             }
 
-            _selectors.Add(selector);
+            query._selectors.Add(selector);
             return query;
         }
 
@@ -133,18 +162,18 @@ namespace SimpleCloud.Data {
             return query;
         }
 
-        public DataQuery Where(Func<object, bool> predicate) {
+        public DataQuery Where(Function predicate) {
             if (IsLookup) {
                 return this;
             }
 
             DataQuery query = DataQuery.Clone(this);
 
-            if (_filters == null) {
-                _filters = new List<Func<object, bool>>();
+            if (query._filters == null) {
+                query._filters = new List<Function>();
             }
 
-            _filters.Add(predicate);
+            query._filters.Add(predicate);
             return query;
         }
     }
