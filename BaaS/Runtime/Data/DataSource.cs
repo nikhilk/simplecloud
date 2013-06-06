@@ -38,8 +38,15 @@ namespace SimpleCloud.Data {
         }
 
         public Task<object> Execute(DataRequest request, Dictionary<string, object> options) {
+            if (options != null) {
+                object result = options["result"];
+                if (Script.IsUndefined(result) == false) {
+                    return Deferred.Create<object>(result).Task;
+                }
+            }
+
             if (request.Operation == DataOperation.Execute) {
-                return ExecuteCustom(request, options);
+                return Deferred.Create<object>(Script.Undefined).Task;
             }
             else if ((request.Operation == DataOperation.Lookup) || (request.Operation == DataOperation.Query)) {
                 return ExecuteQuery(request, options);
@@ -47,11 +54,6 @@ namespace SimpleCloud.Data {
             else {
                 return ExecuteNonQuery(request, options);
             }
-        }
-
-        protected virtual Task<object> ExecuteCustom(DataRequest request, Dictionary<string, object> options) {
-            object result = (options != null) ? Script.Or(options["result"], options) : null;
-            return Deferred.Create<object>(result).Task;
         }
 
         protected virtual Task<object> ExecuteNonQuery(DataRequest request, Dictionary<string, object> options) {
