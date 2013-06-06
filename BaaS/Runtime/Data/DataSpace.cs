@@ -90,8 +90,8 @@ namespace SimpleCloud.Data {
                     _dataSources[name] = new SqlDataSource(_app, name, sourceEntry.Value);
                     Runtime.TraceInfo("Created sql data source named '%s'.", name);
                 }
-                else if (type == "local") {
-                    _dataSources[name] = new LocalDataSource(_app, name, sourceEntry.Value);
+                else if (type == "inproc") {
+                    _dataSources[name] = new InprocDataSource(_app, name, sourceEntry.Value);
                     Runtime.TraceInfo("Created local in-memory data source named '%s'.", name);
                 }
                 else {

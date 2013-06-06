@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace NodeApi {
+namespace SimpleCloud {
 
     [ScriptImport]
     [ScriptIgnoreNamespace]

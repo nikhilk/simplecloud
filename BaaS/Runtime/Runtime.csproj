@@ -43,7 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="%24\Edge.cs" />
-    <Compile Include="%24\Runtime.cs" />
+    <Compile Include="Runtime.cs" />
     <Content Include="package.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -58,7 +58,7 @@
     <Compile Include="Data\DataSpace.cs" />
     <Compile Include="Data\DataCollection.cs" />
     <Compile Include="Data\DataSource.cs" />
-    <Compile Include="Data\Sources\LocalDataSource.cs" />
+    <Compile Include="Data\Sources\InprocDataSource.cs" />
     <Compile Include="Data\Sources\SqlDataSource.cs" />
     <Compile Include="Scripting\Objects\AppObject.cs" />
     <Compile Include="Scripting\Objects\DataRequestObject.cs" />
@@ -80,6 +80,9 @@
   <ItemGroup>
     <Reference Include="Script.Node">
       <HintPath>..\packages\ScriptSharp.Lib.Node.0.8\lib\Script.Node.dll</HintPath>
+    </Reference>
+    <Reference Include="Script.Node.Azure">
+      <HintPath>..\packages\ScriptSharp.Lib.Node.Azure.0.8\lib\Script.Node.Azure.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

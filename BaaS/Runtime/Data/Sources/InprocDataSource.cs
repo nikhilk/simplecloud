@@ -1,4 +1,4 @@
-﻿// LocalDataSource.cs
+﻿// InprocDataSource.cs
 //
 
 using System;
@@ -7,11 +7,11 @@ using System.Threading;
 
 namespace SimpleCloud.Data.Sources {
 
-    public sealed class LocalDataSource : DataSource {
+    public sealed class InprocDataSource : DataSource {
 
         private Dictionary<string, Dictionary<string, Dictionary<string, object>>> _data;
 
-        public LocalDataSource(Application app, string name, Dictionary<string, object> configuration)
+        public InprocDataSource(Application app, string name, Dictionary<string, object> configuration)
             : base(app, name, configuration) {
             _data = new Dictionary<string, Dictionary<string, Dictionary<string, object>>>();
         }
