@@ -49,7 +49,7 @@ namespace SimpleCloud.Server {
                 throw new Exception("No data for requests without a body.");
             }
 
-            if (_data != null) {
+            if (Script.IsUndefined(_data) == false) {
                 return Deferred.Create<object>(_data).Task;
             }
 
@@ -66,7 +66,7 @@ namespace SimpleCloud.Server {
                 };
                 _httpRequest.End += delegate() {
                     try {
-                        _data = Json.Parse(content);
+                        _data = String.IsNullOrEmpty(content) ? null : Json.Parse(content);
                         deferred.Resolve(_data);
                     }
                     catch (Exception e) {

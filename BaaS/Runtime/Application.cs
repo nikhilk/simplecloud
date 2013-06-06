@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Serialization;
 using NodeApi;
 using NodeApi.IO;
+using SimpleCloud.Api;
 using SimpleCloud.Data;
 using SimpleCloud.Scripting;
 using SimpleCloud.Server;
@@ -19,6 +20,7 @@ namespace SimpleCloud {
 
         private Dictionary<string, object> _settings;
         private DataSpace _data;
+        private Endpoints _endpoints;
         private ScriptManager _scripts;
         private ServerRuntime _runtime;
 
@@ -27,12 +29,19 @@ namespace SimpleCloud {
 
             _settings = GetConfigurationObject("settings");
             _data = new DataSpace(this);
+            _endpoints = new Endpoints(this);
             _scripts = new ScriptManager(this);
         }
 
         public DataSpace Data {
             get {
                 return _data;
+            }
+        }
+
+        public Endpoints Endpoints {
+            get {
+                return _endpoints;
             }
         }
 
@@ -62,7 +71,8 @@ namespace SimpleCloud {
         public void Run() {
             List<IServerModule> modules = new List<IServerModule>();
             List<IServerHandler> handlers = new List<IServerHandler>(
-                new DataHandler(_data)
+                new DataHandler(_data),
+                new ApiHandler(_endpoints)
             );
 
             _runtime = new ServerRuntime(_options.Path, modules, handlers);

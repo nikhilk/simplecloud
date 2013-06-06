@@ -11,9 +11,11 @@ namespace SimpleCloud.Scripting.Objects {
     public sealed class AppObject {
 
         public Dictionary<string, object> Settings;
+        public Dictionary<string, object> State;
 
         public AppObject(Application app) {
             Settings = app.Settings;
+            State = new Dictionary<string, object>();
         }
     }
 }
