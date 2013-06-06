@@ -44,6 +44,8 @@ namespace SimpleCloud.Scripting {
                 Dictionary<string, object> context = new Dictionary<string, object>();
                 context["app"] = _appObject;
                 context["data"] = _dataObject;
+                context["console"] = typeof(Console);
+                context["require"] = (Func<string, object>)LoadModule;
 
                 if (String.IsNullOrEmpty(contextMember) == false) {
                     context[contextMember] = contextObject;
@@ -53,6 +55,11 @@ namespace SimpleCloud.Scripting {
             }
 
             return Script.Undefined;
+        }
+
+        private object LoadModule(string name) {
+            string modulePath = Path.Join(_app.Options.Path, "node_modules", name);
+            return Script.Literal("require({0})", modulePath);
         }
     }
 }
