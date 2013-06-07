@@ -44,7 +44,7 @@ namespace SimpleCloud.Api {
 
             switch (request.Verb) {
                 case HttpVerb.GET:
-                    scriptName = String.IsNullOrEmpty(request.ActionName) ? "get" : "get" + request.ActionName;
+                    scriptName = String.IsNullOrEmpty(request.ActionName) ? "get" : "get." + request.ActionName;
                     break;
                 case HttpVerb.POST:
                     scriptName = String.IsNullOrEmpty(request.ActionName) ? "post" : request.ActionName;

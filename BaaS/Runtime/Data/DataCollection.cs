@@ -57,7 +57,7 @@ namespace SimpleCloud.Data {
                     scriptName = "lookup";
                     break;
                 case DataOperation.Query:
-                    scriptName = String.IsNullOrEmpty(request.OperationName) ? "query" : "query" + request.OperationName;
+                    scriptName = String.IsNullOrEmpty(request.OperationName) ? "query" : "query." + request.OperationName;
                     break;
                 case DataOperation.Insert:
                     scriptName = "insert";
