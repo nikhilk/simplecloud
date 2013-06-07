@@ -10,17 +10,15 @@ using SimpleCloud;
 internal static class Startup {
 
     static Startup() {
-        ApplicationOptions options;
-
         CommandModel commandModel =
-            new CommandModel("sc").AddArgument("port", new CommandArgument("type", "number", "required", true))
+            new CommandModel("sc").AddArgument("port", new CommandArgument("type", "number"))
                                   .AddArgument("path", new CommandArgument("type", "string"))
                                   .AddArgument("logs", new CommandArgument("type", "boolean"));
 
+        ApplicationOptions options;
         try {
             options = (ApplicationOptions)CommandLine.Parse(commandModel);
-
-            options.Port = Script.Or<int>(options.Port, Int32.Parse(Node.Process.Environment["PORT"]), 1337);
+            options.Port = Script.Or(options.Port, Number.ParseInt(Node.Process.Environment["PORT"]), 1337);
             options.Path = Script.Or(options.Path, Node.Process.GetCurrentDirectory());
 
             Runtime.EnableTrace = options.Logs;
