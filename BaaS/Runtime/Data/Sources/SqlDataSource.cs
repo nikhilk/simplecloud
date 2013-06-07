@@ -112,7 +112,7 @@ namespace SimpleCloud.Data.Sources {
 
             if (command != null) {
                 Deferred<object> deferred = Deferred.Create<object>();
-                GetSqlService(request).Sql(command, parameters)
+                GetSqlService(request.Partition).Sql(command, parameters)
                     .Done(delegate(object o) {
                         deferred.Resolve((int)o == 1);
                     })
@@ -144,37 +144,61 @@ namespace SimpleCloud.Data.Sources {
 
             Deferred<object> deferred = Deferred.Create<object>();
 
-            GetSqlService(request).Sql(command, new object[] { query.ID })
-                .Done(delegate(object o) {
-                    object[] items = (object[])o;
-                    if ((items != null) && (items.Length != 0)) {
-                        if (query.IsLookup) {
-                            deferred.Resolve(items[0]);
+            List<string> partitions = (options != null) ? (List<string>)options["partitions"] : null;
+            if (partitions == null) {
+                GetSqlService(request.Partition).Sql(command, parameters)
+                    .Done(delegate(object o) {
+                        object[] items = (object[])o;
+                        if ((items != null) && (items.Length != 0)) {
+                            if (query.IsLookup) {
+                                deferred.Resolve(items[0]);
+                            }
+                            else {
+                                items = query.Evaluate(items);
+                                deferred.Resolve(items);
+                            }
                         }
                         else {
-                            items = query.Evaluate(items);
-                            deferred.Resolve(items);
+                            deferred.Resolve(null);
                         }
+                    })
+                    .Fail(delegate(Exception e) {
+                        deferred.Reject(e);
+                    });
+            }
+            else {
+                List<Task<object>> tasks = partitions.Map<Task<object>>(delegate(string partition) {
+                    return GetSqlService(partition).Sql(command, parameters);
+                });
+
+                Task.All((Task[])tasks).ContinueWith(delegate(Task task) {
+                    if (task.Status == TaskStatus.Done) {
+                        List<object> allItems = new List<object>();
+                        foreach (Task<object> t in tasks) {
+                            object[] items = (object[])t.Result;
+                            foreach (object item in items) {
+                                allItems.Add(item);
+                            }
+                        }
+                        deferred.Resolve(allItems);
                     }
                     else {
                         deferred.Resolve(null);
                     }
-                })
-                .Fail(delegate(Exception e) {
-                    deferred.Reject(e);
                 });
+            }
 
             return deferred.Task;
         }
 
-        private SqlService GetSqlService(DataRequest request) {
+        private SqlService GetSqlService(string partition) {
             string connectionString = _connectionString;
 
-            if ((_partitions != null) && (String.IsNullOrEmpty(request.Partition) == false)) {
-                connectionString = _partitions[request.Partition];
+            if ((_partitions != null) && (String.IsNullOrEmpty(partition) == false)) {
+                connectionString = _partitions[partition];
 
                 if (String.IsNullOrEmpty(connectionString)) {
-                    throw new Exception("Unknown partition '" + request.Partition + "'.");
+                    throw new Exception("Unknown partition '" + partition + "'.");
                 }
             }
 
@@ -186,7 +210,9 @@ namespace SimpleCloud.Data.Sources {
 
             if ((_partitions != null) && (options != null)) {
                 string partition = (string)options["partition"];
-                connectionString = _partitions[partition];
+                if (String.IsNullOrEmpty(partition) == false) {
+                    connectionString = _partitions[partition];
+                }
 
                 if (String.IsNullOrEmpty(connectionString)) {
                     throw new Exception("Unknown partition '" + partition + "' referred to for sql data source '" + Name + "'");
