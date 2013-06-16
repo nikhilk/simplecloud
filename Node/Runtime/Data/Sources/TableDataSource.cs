@@ -107,7 +107,7 @@ namespace SimpleCloud.Data.Sources {
                     throw new Exception("Missing partition information to perform lookup.");
                 }
 
-                Runtime.TraceInfo("Querying table service pk = %s, rk = %s", request.Partition, query.ID);
+                Runtime.TraceInfo("Querying table service on table %s with pk = %s, rk = %s", tableName, request.Partition, query.ID);
 
                 _tableService.QueryEntity(tableName, request.Partition, query.ID, delegate(Exception e, CloudTableEntity entity) {
                     if (e != null) {
@@ -120,6 +120,8 @@ namespace SimpleCloud.Data.Sources {
                 });
             }
             else {
+                Runtime.TraceInfo("Querying table service on table %s", tableName);
+
                 // TODO: Apply actual query
                 CloudTableQuery tableQuery = new CloudTableQuery().From(tableName);
                 if (String.IsNullOrEmpty(request.Partition) == false) {
@@ -127,6 +129,16 @@ namespace SimpleCloud.Data.Sources {
                 }
 
                 _tableService.QueryEntities(tableQuery, delegate(Exception e, List<CloudTableEntity> entities) {
+                    List<string> partitions = null;
+                    if (options != null) {
+                        partitions = (List<string>)options["partitions"];
+                        if (partitions != null) {
+                            entities = entities.Filter(delegate(CloudTableEntity entity) {
+                                return partitions.Contains(entity.PartitionKey);
+                            });
+                        }
+                    }
+
                     entities.ForEach(CleanEntity);
                     object[] items = query.Evaluate((object[])entities);
 
