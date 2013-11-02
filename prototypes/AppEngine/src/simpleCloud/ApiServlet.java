@@ -12,13 +12,6 @@ public final class ApiServlet extends HttpServlet {
         "  return (new Date()).toString();\n" +
         "}\n" +
         "app()";
-
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String text = executeScript();
-        
-        response.setContentType("text/plain");
-        response.getWriter().println(text);
-    }
     
     private String executeScript() {
         Context scriptContext = Context.enter();
@@ -37,6 +30,13 @@ public final class ApiServlet extends HttpServlet {
         finally {
             Context.exit();
         }
+    }
+
+    public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String text = executeScript();
+        
+        response.setContentType("text/plain");
+        response.getWriter().println(text);
     }
     
     private final class SuppressAccessClassShutter implements ClassShutter {
