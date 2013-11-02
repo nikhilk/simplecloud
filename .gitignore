@@ -1,8 +1,1 @@
-bin/
-obj/
-*.suo
-*.user
-*.cache
-*.trx
-packages/
-TestResults/
+.DS_Store
