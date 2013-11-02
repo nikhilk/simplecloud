@@ -2,7 +2,6 @@ package simpleCloud;
 
 import java.io.*;
 import javax.servlet.http.*;
-import org.mozilla.javascript.*;
 
 @SuppressWarnings("serial")
 public final class ApiServlet extends HttpServlet {
@@ -13,36 +12,10 @@ public final class ApiServlet extends HttpServlet {
         "}\n" +
         "app()";
     
-    private String executeScript() {
-        Context scriptContext = Context.enter();
-        
-        try {
-            scriptContext.setClassShutter(new SuppressAccessClassShutter());
-            
-            Scriptable scriptScope = scriptContext.initStandardObjects();
-            Object result = scriptContext.evaluateString(scriptScope, appScript, "<app>", 1, null);
-            
-            return Context.toString(result);
-        }
-        catch (RhinoException e) {
-            return e.getMessage();
-        }
-        finally {
-            Context.exit();
-        }
-    }
-
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String text = executeScript();
+        String text = ScriptManager.Instance.executeScript("<app>", appScript);
         
         response.setContentType("text/plain");
         response.getWriter().println(text);
-    }
-    
-    private final class SuppressAccessClassShutter implements ClassShutter {
-        
-        public boolean visibleToScripts(String name) {
-            return false;
-        }
     }
 }
