@@ -28,4 +28,5 @@
     http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions
   -->
 
+  <public-root>/content</public-root>
 </appengine-web-app>
