@@ -1,4 +1,7 @@
-package simpleCloud;
+// ScriptLoader.java
+//
+
+package simpleCloud.services.mozilla;
 
 import java.io.*;
 

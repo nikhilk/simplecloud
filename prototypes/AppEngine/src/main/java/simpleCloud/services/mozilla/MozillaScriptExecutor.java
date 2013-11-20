@@ -1,19 +1,22 @@
-package simpleCloud;
+// MozillaScriptExecutor.java
+//
+
+package simpleCloud.services.mozilla;
 
 import java.io.*;
 import org.mozilla.javascript.*;
+import simpleCloud.services.*;
 
-public final class ScriptManager {
-
-    public final static ScriptManager Instance = new ScriptManager();
+public final class MozillaScriptExecutor implements ScriptExecutor {
     
     private ScriptLoader _loader;
     
-    private ScriptManager() {
+    public MozillaScriptExecutor() {
         _loader = new ScriptLoader();
     }
-    
-    public String executeScript(String path, String name) {
+
+    @Override
+    public String executeScript(String path, String name) throws ScriptException {
         Context scriptContext = Context.enter();
         
         try {
@@ -27,10 +30,10 @@ public final class ScriptManager {
             return Context.toString(result);
         }
         catch (IOException e) {
-            return e.getMessage();
+            throw new ScriptException("Unable to load script.", e);
         }
         catch (RhinoException e) {
-            return e.getMessage();
+            throw new ScriptException("Unable to execute script.", e);
         }
         finally {
             Context.exit();
