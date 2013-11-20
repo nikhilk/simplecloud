@@ -9,7 +9,7 @@
 
   <properties>
     <appengine.app.version>1</appengine.app.version>
-    <appengine.target.version>1.8.7</appengine.target.version>
+    <appengine.target.version>1.8.8</appengine.target.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -36,7 +36,7 @@
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>appengine-maven-plugin</artifactId>
-        <version>1.8.7</version>
+        <version>1.8.8</version>
       </plugin>
     </plugins>
   </build>

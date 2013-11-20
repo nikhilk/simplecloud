@@ -6,19 +6,12 @@ package simpleCloud;
 import java.io.*;
 import javax.servlet.http.*;
 import simpleCloud.services.*;
-import simpleCloud.services.mozilla.*;
 
 @SuppressWarnings("serial")
 public final class ApiServlet extends HttpServlet {
     
-    private ScriptExecutor _scriptExecutor;
-
-    public ApiServlet() {
-        this(new MozillaScriptExecutor());
-    }
-
-    public ApiServlet(ScriptExecutor scriptExecutor) {
-        _scriptExecutor = scriptExecutor;
+    private Application getApplication() {
+        return (Application)getServletContext().getAttribute(Application.class.getName());
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -26,7 +19,9 @@ public final class ApiServlet extends HttpServlet {
         Boolean success = false;
         
         try {
-            result = _scriptExecutor.executeScript("app/app.js", "<app>");
+            ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
+            
+            result = scriptExecutor.executeScript("app/app.js", "<app>");
             success = true;
         }
         catch (ScriptException e) {
