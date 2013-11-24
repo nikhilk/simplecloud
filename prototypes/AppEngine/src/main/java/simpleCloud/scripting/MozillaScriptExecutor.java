@@ -75,6 +75,8 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
             String apiPackage = ScriptApplication.class.getPackage().getName();
             context.setClassShutter(new SandboxClassShutter(apiPackage));
 
+            context.setWrapFactory(new SandboxWrapFactory());
+
             return context;
         }
     }
@@ -97,5 +99,31 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                    _allowedNames.contains(name);
         }
     }
-}
 
+    public static class SandboxWrapFactory extends WrapFactory {
+
+        @Override
+        public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object object, Class<?> objectType) {
+            return new SandboxNativeJavaObject(scope, object, objectType);
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public static class SandboxNativeJavaObject extends NativeJavaObject {
+
+        public SandboxNativeJavaObject(Scriptable scope, Object object, Class<?> objectType) {
+            super(scope, object, objectType);
+        }
+
+        @Override
+        public Object get(String name, Scriptable scriptable) {
+            if (name.equals("getClass")) {
+                // Prevent access to reflection, which would allow script to
+                // get to the class, then package, and all other classes.
+                return Scriptable.NOT_FOUND;
+            }
+
+            return super.get(name, scriptable);
+        }
+    }
+}
