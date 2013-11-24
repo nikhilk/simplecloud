@@ -9,7 +9,7 @@ import simpleCloud.services.*;
 
 @SuppressWarnings("serial")
 public final class ApiServlet extends HttpServlet {
-    
+
     private Application getApplication() {
         return (Application)getServletContext().getAttribute(Application.class.getName());
     }
@@ -17,10 +17,10 @@ public final class ApiServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String result;
         Boolean success = false;
-        
+
         try {
             ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
-            
+
             result = scriptExecutor.executeScript("app/app.js", "<app>");
             success = true;
         }

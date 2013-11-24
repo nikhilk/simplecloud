@@ -1,4 +1,4 @@
-function app() {
-  return (new Date()).toString();
+function fn() {
+  return app.name + ': ' + (new Date()).toString();
 }
-app();
+fn();

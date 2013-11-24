@@ -4,11 +4,11 @@
 package simpleCloud;
 
 import javax.servlet.*;
+import simpleCloud.scripting.*;
 import simpleCloud.services.*;
-import simpleCloud.services.mozilla.*;
 
 public final class Application implements ServletContextListener {
-    
+
     private ScriptExecutor _scriptExecutor;
 
     @Override
@@ -17,12 +17,12 @@ public final class Application implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent e) {
-        _scriptExecutor = new MozillaScriptExecutor();
-        
+        _scriptExecutor = new MozillaScriptExecutor(this);
+
         ServletContext context = e.getServletContext();
         context.setAttribute(Application.class.getName(), this);
     }
-    
+
     public ScriptExecutor getScriptExecutor() {
         return _scriptExecutor;
     }
