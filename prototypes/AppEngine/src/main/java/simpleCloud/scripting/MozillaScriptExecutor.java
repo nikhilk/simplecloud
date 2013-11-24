@@ -17,11 +17,11 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
-    public MozillaScriptExecutor(Application app) {
+    public MozillaScriptExecutor(Application app, ScriptLoader loader) {
         _contextFactory = new SandboxContextFactory();
         _sharedGlobal = createGlobalObject(app);
 
-        _scripts = loadScripts();
+        _scripts = loadScripts(loader);
     }
 
     private ScriptableObject createGlobalObject(final Application app) {
@@ -68,31 +68,17 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         }
     }
 
-    private Script loadScript(Context context, String name, String filePath) throws IOException {
-        Reader reader = new FileReader(filePath);
-        try {
-            return context.compileReader(reader, name, 1, null);
-        }
-        finally {
-            reader.close();
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private HashMap<ScriptName, Script> loadScripts() {
+    private HashMap<ScriptName, Script> loadScripts(final ScriptLoader loader) {
         return (HashMap<ScriptName, Script>)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
                 HashMap<ScriptName, Script> scripts = new HashMap<ScriptName, Script>();
 
-                File appFolder = new File("app");
-                for (File scriptFile : appFolder.listFiles()) {
+                for (ScriptName name : loader.getNames()) {
                     try {
-                        String fileName = scriptFile.getName();
-                        fileName = fileName.substring(0, fileName.indexOf('.'));
-
-                        ScriptName name = new ScriptName(fileName);
-                        Script script = loadScript(scriptContext, fileName, scriptFile.getPath());
+                        String scriptSource = loader.loadScript(name);
+                        Script script = scriptContext.compileString(scriptSource, name.getName(), 1, null);
 
                         scripts.put(name, script);
                     }

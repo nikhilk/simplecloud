@@ -6,6 +6,7 @@ package simpleCloud;
 import javax.servlet.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
+import simpleCloud.storage.*;
 
 public final class Application implements ServletContextListener {
 
@@ -17,7 +18,8 @@ public final class Application implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent e) {
-        _scriptExecutor = new MozillaScriptExecutor(this);
+        ScriptLoader loader = new LocalScriptLoader();
+        _scriptExecutor = new MozillaScriptExecutor(this, loader);
 
         ServletContext context = e.getServletContext();
         context.setAttribute(Application.class.getName(), this);
