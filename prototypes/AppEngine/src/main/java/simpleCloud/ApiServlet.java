@@ -5,6 +5,7 @@ package simpleCloud;
 
 import java.io.*;
 import javax.servlet.http.*;
+import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
 
 @SuppressWarnings("serial")
@@ -21,9 +22,10 @@ public final class ApiServlet extends HttpServlet {
         try {
             String requestName = request.getRequestURI().split("/")[1];
             ScriptName scriptName = new ScriptName(requestName);
+            ScriptRequest scriptRequest = new ScriptRequest(requestName);
 
             ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
-            result = scriptExecutor.executeScript(scriptName);
+            result = scriptExecutor.executeScript(scriptName, "request", scriptRequest);
 
             success = true;
         }

@@ -17,23 +17,21 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
-    public MozillaScriptExecutor(Application app, ScriptLoader loader) {
+    public MozillaScriptExecutor(ScriptLoader loader, ScriptApplication app) {
         _contextFactory = new SandboxContextFactory();
         _sharedGlobal = createGlobalObject(app);
 
         _scripts = loadScripts(loader);
     }
 
-    private ScriptableObject createGlobalObject(final Application app) {
+    private ScriptableObject createGlobalObject(final ScriptApplication app) {
         return (ScriptableObject)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
                 ScriptableObject global = new TopLevel();
 
                 scriptContext.initStandardObjects(global, true);
-
-                ScriptApplication appObject = new ScriptApplication(app);
-                ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
+                ScriptableObject.putProperty(global, "app", Context.javaToJS(app, global));
 
                 global.sealObject();
                 return global;
@@ -42,7 +40,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    public String executeScript(final ScriptName name) throws ScriptException {
+    public String executeScript(final ScriptName name, final String objectKey, final Object object) throws ScriptException {
         final Script script = _scripts.get(name);
         if (script == null) {
             throw new ScriptException("The specified script was not found.");
@@ -56,7 +54,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                     scope.setPrototype(_sharedGlobal);
                     scope.setParentScope(null);
 
-                    ScriptableObject.putProperty(scope, "request", name.getName());
+                    ScriptableObject.putProperty(scope, objectKey, Context.javaToJS(object, scope));
 
                     Object result = script.exec(scriptContext, scope);
                     return Context.toString(result);
