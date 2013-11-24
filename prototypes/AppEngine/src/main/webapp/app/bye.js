@@ -1,4 +1,4 @@
 function fn() {
-  return '[' + (new Date()).toString() + '] ' + app.name + ': ' + 'Goodbye!';
+  return '[' + (new Date()).toString() + '] ' + app.name + '(' + request + '): ' + 'Goodbye!';
 }
 fn();

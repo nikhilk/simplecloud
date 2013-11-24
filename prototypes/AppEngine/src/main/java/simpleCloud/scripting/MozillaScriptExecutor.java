@@ -13,12 +13,28 @@ import simpleCloud.services.*;
 public final class MozillaScriptExecutor implements ScriptExecutor {
 
     private ContextFactory _contextFactory;
-
-    private ScriptApplication _appObject;
+    private ScriptableObject _sharedGlobal;
 
     public MozillaScriptExecutor(Application app) {
         _contextFactory = new SandboxContextFactory();
-        _appObject = new ScriptApplication(app);
+        _sharedGlobal = createGlobalObject(app);
+    }
+
+    private ScriptableObject createGlobalObject(final Application app) {
+        return (ScriptableObject)_contextFactory.call(new ContextAction() {
+            @Override
+            public Object run(Context scriptContext) {
+                ScriptableObject global = new TopLevel();
+
+                scriptContext.initStandardObjects(global, true);
+
+                ScriptApplication appObject = new ScriptApplication(app);
+                ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
+
+                global.sealObject();
+                return global;
+            }
+        });
     }
 
     @Override
@@ -29,11 +45,13 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
             return (String)_contextFactory.call(new ContextAction() {
                 @Override
                 public Object run(Context scriptContext) {
-                    ScriptableObject global = new TopLevel();
-                    scriptContext.initStandardObjects(global);
-                    ScriptableObject.putProperty(global, "app", Context.javaToJS(_appObject, global));
+                    Scriptable scope = scriptContext.newObject(_sharedGlobal);
+                    scope.setPrototype(_sharedGlobal);
+                    scope.setParentScope(null);
 
-                    Object result = scriptContext.evaluateString(global, script, name, 1, null);
+                    ScriptableObject.putProperty(scope, "request", path);
+
+                    Object result = scriptContext.evaluateString(scope, script, name, 1, null);
                     return Context.toString(result);
                 }
             });
