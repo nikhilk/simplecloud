@@ -19,10 +19,12 @@ public final class ApiServlet extends HttpServlet {
         Boolean success = false;
 
         try {
-            String name = request.getRequestURI().split("/")[1];
-            ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
+            String requestName = request.getRequestURI().split("/")[1];
+            ScriptName scriptName = new ScriptName(requestName);
 
-            result = scriptExecutor.executeScript(name);
+            ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
+            result = scriptExecutor.executeScript(scriptName);
+
             success = true;
         }
         catch (ScriptException e) {

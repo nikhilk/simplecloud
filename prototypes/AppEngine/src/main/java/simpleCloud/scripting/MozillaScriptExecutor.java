@@ -9,11 +9,10 @@ import org.mozilla.javascript.*;
 import simpleCloud.*;
 import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
-import simpleCloud.util.*;
 
 public final class MozillaScriptExecutor implements ScriptExecutor {
 
-    private HashMap<String, Script> _scripts;
+    private HashMap<ScriptName, Script> _scripts;
 
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
@@ -43,7 +42,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    public String executeScript(final String name) throws ScriptException {
+    public String executeScript(final ScriptName name) throws ScriptException {
         final Script script = _scripts.get(name);
         if (script == null) {
             throw new ScriptException("The specified script was not found.");
@@ -57,7 +56,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                     scope.setPrototype(_sharedGlobal);
                     scope.setParentScope(null);
 
-                    ScriptableObject.putProperty(scope, "request", name);
+                    ScriptableObject.putProperty(scope, "request", name.getName());
 
                     Object result = script.exec(scriptContext, scope);
                     return Context.toString(result);
@@ -80,19 +79,20 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @SuppressWarnings("unchecked")
-    private HashMap<String, Script> loadScripts() {
-        return (HashMap<String, Script>)_contextFactory.call(new ContextAction() {
+    private HashMap<ScriptName, Script> loadScripts() {
+        return (HashMap<ScriptName, Script>)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
-                HashMap<String, Script> scripts = new CaseInsensitiveHashMap<Script>();
+                HashMap<ScriptName, Script> scripts = new HashMap<ScriptName, Script>();
 
                 File appFolder = new File("app");
                 for (File scriptFile : appFolder.listFiles()) {
                     try {
-                        String name = scriptFile.getName();
-                        name = name.substring(0, name.indexOf('.'));
+                        String fileName = scriptFile.getName();
+                        fileName = fileName.substring(0, fileName.indexOf('.'));
 
-                        Script script = loadScript(scriptContext, name, scriptFile.getPath());
+                        ScriptName name = new ScriptName(fileName);
+                        Script script = loadScript(scriptContext, fileName, scriptFile.getPath());
 
                         scripts.put(name, script);
                     }

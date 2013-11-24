@@ -5,5 +5,5 @@ package simpleCloud.services;
 
 public interface ScriptExecutor {
 
-    public String executeScript(String name) throws ScriptException;
+    public String executeScript(ScriptName name) throws ScriptException;
 }
