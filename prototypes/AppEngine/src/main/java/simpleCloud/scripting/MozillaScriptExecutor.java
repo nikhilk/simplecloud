@@ -9,13 +9,18 @@ import org.mozilla.javascript.*;
 import simpleCloud.*;
 import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
+import simpleCloud.util.*;
 
 public final class MozillaScriptExecutor implements ScriptExecutor {
+
+    private HashMap<String, Script> _scripts;
 
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
     public MozillaScriptExecutor(Application app) {
+        _scripts = new CaseInsensitiveHashMap<Script>();
+
         _contextFactory = new SandboxContextFactory();
         _sharedGlobal = createGlobalObject(app);
     }
@@ -24,6 +29,8 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         return (ScriptableObject)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
+                loadScripts(scriptContext);
+
                 ScriptableObject global = new TopLevel();
 
                 scriptContext.initStandardObjects(global, true);
@@ -38,10 +45,13 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    public String executeScript(final String path, final String name) throws ScriptException {
-        try {
-            final String script = loadScript(path);
+    public String executeScript(final String name) throws ScriptException {
+        final Script script = _scripts.get(name);
+        if (script == null) {
+            throw new ScriptException("The specified script was not found.");
+        }
 
+        try {
             return (String)_contextFactory.call(new ContextAction() {
                 @Override
                 public Object run(Context scriptContext) {
@@ -49,40 +59,43 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                     scope.setPrototype(_sharedGlobal);
                     scope.setParentScope(null);
 
-                    ScriptableObject.putProperty(scope, "request", path);
+                    ScriptableObject.putProperty(scope, "request", name);
 
-                    Object result = scriptContext.evaluateString(scope, script, name, 1, null);
+                    Object result = script.exec(scriptContext, scope);
                     return Context.toString(result);
                 }
             });
-        }
-        catch (IOException e) {
-            throw new ScriptException("Unable to load script.", e);
         }
         catch (RhinoException e) {
             throw new ScriptException("Unable to execute script.", e);
         }
     }
 
-    private String loadScript(String filePath) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+    private Script loadScript(Context context, String name, String filePath) throws IOException {
+        Reader reader = new FileReader(filePath);
         try {
-            StringBuffer buffer = new StringBuffer();
-            char[] data = new char[1024];
-
-            int readCount = 0;
-            while((readCount = reader.read(data)) != -1){
-                String s = String.valueOf(data, 0, readCount);
-                buffer.append(s);
-            }
-
-            return buffer.toString();
+            return context.compileReader(reader, name, 1, null);
         }
         finally {
             reader.close();
         }
     }
 
+    private void loadScripts(Context context) {
+        File appFolder = new File("app");
+        for (File scriptFile : appFolder.listFiles()) {
+            try {
+                String name = scriptFile.getName();
+                name = name.substring(0, name.indexOf('.'));
+
+                Script script = loadScript(context, name, scriptFile.getPath());
+
+                _scripts.put(name, script);
+            }
+            catch (IOException ioe) {
+            }
+        }
+    }
 
     private final class SandboxContextFactory extends ContextFactory {
 

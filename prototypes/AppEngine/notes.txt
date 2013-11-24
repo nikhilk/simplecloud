@@ -3,3 +3,8 @@ Script Hosting
 More sophisticated class shutter
 http://riven8192.blogspot.com/2010/07/java-rhino-fine-grained-classshutter.html
 
+
+Java Libraries
+
+Highly scalable collections etc.
+http://high-scale-lib.sourceforge.net/
