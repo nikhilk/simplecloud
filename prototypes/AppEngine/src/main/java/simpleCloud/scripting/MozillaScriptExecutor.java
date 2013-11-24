@@ -139,7 +139,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         }
     }
 
-    public static class SandboxWrapFactory extends WrapFactory {
+    public final class SandboxWrapFactory extends WrapFactory {
 
         @Override
         public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object object, Class<?> objectType) {
@@ -148,7 +148,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @SuppressWarnings("serial")
-    public static class SandboxNativeJavaObject extends NativeJavaObject {
+    public final class SandboxNativeJavaObject extends NativeJavaObject {
 
         public SandboxNativeJavaObject(Scriptable scope, Object object, Class<?> objectType) {
             super(scope, object, objectType);
