@@ -19,18 +19,16 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ScriptableObject _sharedGlobal;
 
     public MozillaScriptExecutor(Application app) {
-        _scripts = new CaseInsensitiveHashMap<Script>();
-
         _contextFactory = new SandboxContextFactory();
         _sharedGlobal = createGlobalObject(app);
+
+        _scripts = loadScripts();
     }
 
     private ScriptableObject createGlobalObject(final Application app) {
         return (ScriptableObject)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
-                loadScripts(scriptContext);
-
                 ScriptableObject global = new TopLevel();
 
                 scriptContext.initStandardObjects(global, true);
@@ -81,20 +79,30 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         }
     }
 
-    private void loadScripts(Context context) {
-        File appFolder = new File("app");
-        for (File scriptFile : appFolder.listFiles()) {
-            try {
-                String name = scriptFile.getName();
-                name = name.substring(0, name.indexOf('.'));
+    @SuppressWarnings("unchecked")
+    private HashMap<String, Script> loadScripts() {
+        return (HashMap<String, Script>)_contextFactory.call(new ContextAction() {
+            @Override
+            public Object run(Context scriptContext) {
+                HashMap<String, Script> scripts = new CaseInsensitiveHashMap<Script>();
 
-                Script script = loadScript(context, name, scriptFile.getPath());
+                File appFolder = new File("app");
+                for (File scriptFile : appFolder.listFiles()) {
+                    try {
+                        String name = scriptFile.getName();
+                        name = name.substring(0, name.indexOf('.'));
 
-                _scripts.put(name, script);
+                        Script script = loadScript(scriptContext, name, scriptFile.getPath());
+
+                        scripts.put(name, script);
+                    }
+                    catch (IOException ioe) {
+                    }
+                }
+
+                return scripts;
             }
-            catch (IOException ioe) {
-            }
-        }
+        });
     }
 
     private final class SandboxContextFactory extends ContextFactory {
