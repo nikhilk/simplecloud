@@ -3,7 +3,7 @@
   <application></application>
   <version>1</version>
   <threadsafe>true</threadsafe>
-  <public-root>/content</public-root>
+  <public-root>/app/content</public-root>
 
   <!--
     HTTP Sessions are disabled by default. To enable HTTP sessions specify:
