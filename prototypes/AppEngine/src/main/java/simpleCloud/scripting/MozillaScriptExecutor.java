@@ -17,21 +17,22 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
-    public MozillaScriptExecutor(ScriptLoader loader, ScriptApplication app) {
+    public MozillaScriptExecutor(Application app, ScriptLoader loader) {
         _contextFactory = new SandboxContextFactory();
         _sharedGlobal = createGlobalObject(app);
 
         _scripts = loadScripts(loader);
     }
 
-    private ScriptableObject createGlobalObject(final ScriptApplication app) {
+    private ScriptableObject createGlobalObject(final Application app) {
         return (ScriptableObject)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
                 ScriptableObject global = new TopLevel();
+                ScriptApplication appObject = new ScriptApplication(app);
 
                 scriptContext.initStandardObjects(global, true);
-                ScriptableObject.putProperty(global, "app", Context.javaToJS(app, global));
+                ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
 
                 global.sealObject();
                 return global;

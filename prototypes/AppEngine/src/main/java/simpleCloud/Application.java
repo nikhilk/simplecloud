@@ -7,7 +7,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.servlet.*;
 import simpleCloud.scripting.*;
-import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
 import simpleCloud.storage.*;
 
@@ -58,10 +57,8 @@ public final class Application implements ServletContextListener {
     }
 
     private ScriptExecutor createScriptExecutor() {
-        ScriptLoader loader = new LocalScriptLoader();
-        ScriptApplication appObject = new ScriptApplication(this);
-
-        return new MozillaScriptExecutor(loader, appObject);
+        ScriptLoader loader = new LocalScriptLoader(this);
+        return new MozillaScriptExecutor(this, loader);
     }
 
     public List<ApplicationFeature> getFeatures() {
