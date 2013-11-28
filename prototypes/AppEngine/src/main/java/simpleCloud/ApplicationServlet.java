@@ -15,30 +15,29 @@ public final class ApplicationServlet extends HttpServlet {
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Application app = getApplication();
-        HttpHandler httpHandler = null;
+        HttpFeature httpFeature = null;
 
         String uri = request.getRequestURI();
-        for (ApplicationFeature feature : app.getFeatures()) {
-            if (feature instanceof HttpHandler) {
-                HttpHandler h = (HttpHandler)feature;
+        for (ApplicationFeature feature : getApplication().getFeatures()) {
+            if (feature instanceof HttpFeature) {
+                HttpFeature h = (HttpFeature)feature;
 
                 Matcher matcher = h.getRoute().matcher(uri);
                 if (matcher.matches()) {
                     request.setAttribute(MatchResult.class.getName(), matcher);
-                    httpHandler = h;
+                    httpFeature = h;
                     break;
                 }
             }
         }
 
-        if (httpHandler == null) {
+        if (httpFeature == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
         try {
-            httpHandler.processRequest(request, response);
+            httpFeature.processRequest(request, response);
         }
         catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

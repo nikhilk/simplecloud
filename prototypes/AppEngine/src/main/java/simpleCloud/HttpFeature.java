@@ -6,7 +6,7 @@ package simpleCloud;
 import java.util.regex.*;
 import javax.servlet.http.*;
 
-public interface HttpHandler {
+public interface HttpFeature {
 
     public Pattern getRoute();
 
