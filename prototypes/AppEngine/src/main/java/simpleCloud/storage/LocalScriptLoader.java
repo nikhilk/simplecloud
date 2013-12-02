@@ -54,7 +54,7 @@ public final class LocalScriptLoader implements ScriptLoader {
         for (File file : folder.listFiles()) {
             if (file.isFile()) {
                 String fileName = file.getName();
-                fileName = fileName.substring(0, fileName.indexOf('.'));
+                fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
                 ScriptName name = new ScriptName(featureName, groupName, fileName, file);
                 names.add(name);

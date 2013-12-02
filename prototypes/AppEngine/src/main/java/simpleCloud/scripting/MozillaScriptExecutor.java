@@ -90,6 +90,18 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         });
     }
 
+    @Override
+    public ScriptName resolveScript(List<ScriptName> names) {
+        for (ScriptName n : names) {
+            Script script = _scripts.get(n);
+            if (script != null) {
+                return n;
+            }
+        }
+
+        return null;
+    }
+
     private final class SandboxContextFactory extends ContextFactory {
 
         @Override

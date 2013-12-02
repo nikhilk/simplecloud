@@ -3,6 +3,7 @@
 
 package simpleCloud.features;
 
+import java.util.*;
 import java.util.regex.*;
 import javax.servlet.http.*;
 import simpleCloud.*;
@@ -26,16 +27,37 @@ public final class ActionsFeature extends ApplicationFeature implements HttpFeat
     }
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        MatchResult match = (MatchResult)request.getAttribute(MatchResult.class.getName());
+        ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
 
+        MatchResult match = (MatchResult)request.getAttribute(MatchResult.class.getName());
         String actionGroup = match.group(1);
         String actionName = match.group(2);
+        String actionMethod = request.getMethod();
 
-        ScriptName scriptName = new ScriptName(ActionsFeature.FeatureName, actionGroup, actionName);
-        ScriptRequest scriptRequest = new ScriptRequest(actionGroup + "." + actionName);
+        ArrayList<ScriptName> candidateNames = new ArrayList<ScriptName>();
+        if (actionName == null) {
+            ScriptName name = new ScriptName(ActionsFeature.FeatureName, actionGroup, actionMethod);
+            candidateNames.add(name);
+        }
+        else {
+            if (actionMethod == "POST") {
+                ScriptName simpleName = new ScriptName(ActionsFeature.FeatureName, actionGroup, actionName);
+                candidateNames.add(simpleName);
+            }
 
-        ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
-        String result = scriptExecutor.executeScript(scriptName, "request", scriptRequest);
+            ScriptName qualifiedName = new ScriptName(ActionsFeature.FeatureName, actionGroup,
+                                                      actionMethod + "." + actionName);
+            candidateNames.add(qualifiedName);
+        }
+
+        ScriptName resolvedName = scriptExecutor.resolveScript(candidateNames);
+        if (resolvedName == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        ScriptRequest scriptRequest = new ScriptRequest(resolvedName.getQualifiedName());
+        String result = scriptExecutor.executeScript(resolvedName, "request", scriptRequest);
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/plain");
