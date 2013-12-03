@@ -41,7 +41,8 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    public String executeScript(final ScriptName name, final String objectKey, final Object object) throws ScriptException {
+    public String executeScript(final ScriptName name, final boolean useSharedScript,
+                                final String objectKey, final Object object) throws ScriptException {
         final Script script = _scripts.get(name);
         if (script == null) {
             throw new ScriptException("The specified script was not found.");
@@ -56,6 +57,15 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                     scope.setParentScope(null);
 
                     ScriptableObject.putProperty(scope, objectKey, Context.javaToJS(object, scope));
+
+                    if (useSharedScript) {
+                        ScriptName sharedScriptName = new ScriptName(name.getFeature(), name.getGroup(), "_shared");
+                        Script sharedScript = _scripts.get(sharedScriptName);
+
+                        if (sharedScript != null) {
+                            sharedScript.exec(scriptContext, scope);
+                        }
+                    }
 
                     Object result = script.exec(scriptContext, scope);
                     return Context.toString(result);

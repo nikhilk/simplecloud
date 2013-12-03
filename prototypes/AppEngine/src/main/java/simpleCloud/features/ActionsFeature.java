@@ -57,7 +57,7 @@ public final class ActionsFeature extends ApplicationFeature implements HttpFeat
         }
 
         ScriptRequest scriptRequest = new ScriptRequest(resolvedName.getQualifiedName());
-        String result = scriptExecutor.executeScript(resolvedName, "request", scriptRequest);
+        String result = scriptExecutor.executeScript(resolvedName, /* sharedScript */ true, "request", scriptRequest);
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/plain");

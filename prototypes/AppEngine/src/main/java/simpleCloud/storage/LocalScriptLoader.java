@@ -56,8 +56,16 @@ public final class LocalScriptLoader implements ScriptLoader {
                 String fileName = file.getName();
                 fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
-                ScriptName name = new ScriptName(featureName, groupName, fileName, file);
-                names.add(name);
+                String script = null;
+                try {
+                    script = readFile(file.getPath());
+
+                    ScriptName name = new ScriptName(featureName, groupName, fileName, script);
+                    names.add(name);
+                }
+                catch (IOException ioe) {
+                    // TODO: Error reporting
+                }
             }
         }
 
@@ -66,8 +74,7 @@ public final class LocalScriptLoader implements ScriptLoader {
 
     @Override
     public String loadScript(ScriptName name) throws IOException {
-        File scriptFile = (File)name.getObject();
-        return readFile(scriptFile.getPath());
+        return (String)name.getObject();
     }
 
     private String readFile(String filePath) throws IOException {
