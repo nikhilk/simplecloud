@@ -3,7 +3,6 @@
 
 package simpleCloud.scripting;
 
-import java.io.*;
 import java.util.*;
 import org.mozilla.javascript.*;
 import simpleCloud.*;
@@ -19,9 +18,9 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
 
     public MozillaScriptExecutor(Application app, ScriptLoader loader) {
         _contextFactory = new SandboxContextFactory();
-        _sharedGlobal = createGlobalObject(app);
 
         _scripts = loadScripts(loader);
+        _sharedGlobal = createGlobalObject(app);
     }
 
     private ScriptableObject createGlobalObject(final Application app) {
@@ -33,6 +32,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
 
                 scriptContext.initStandardObjects(global, true);
                 ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
+                ScriptableObject.putProperty(global, "require", new RequireFunction(global, _scripts, app.getName()));
 
                 global.sealObject();
                 return global;
@@ -91,7 +91,8 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
 
                         scripts.put(name, script);
                     }
-                    catch (IOException ioe) {
+                    catch (Exception e) {
+                        // TODO: Error message
                     }
                 }
 

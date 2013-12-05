@@ -10,13 +10,17 @@ import simpleCloud.scripting.*;
 import simpleCloud.services.*;
 import simpleCloud.storage.*;
 
-public final class Application implements ServletContextListener {
+public final class Application implements ServletContextListener, ApplicationFeature, ScriptFeature {
 
-    private List<ApplicationFeature> _features;
+    private static final String FeatureName = "code";
+
+    private ArrayList<ApplicationFeature> _features;
     private ScriptExecutor _scriptExecutor;
 
     public Application() {
         _features = createFeatures();
+        _features.add(this);
+
         _scriptExecutor = createScriptExecutor();
     }
 
@@ -31,8 +35,8 @@ public final class Application implements ServletContextListener {
     }
 
     @SuppressWarnings("unchecked")
-    private List<ApplicationFeature> createFeatures() {
-        List<ApplicationFeature> features = new ArrayList<ApplicationFeature>();
+    private ArrayList<ApplicationFeature> createFeatures() {
+        ArrayList<ApplicationFeature> features = new ArrayList<ApplicationFeature>();
 
         Properties props = System.getProperties();
         for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
@@ -65,7 +69,17 @@ public final class Application implements ServletContextListener {
         return _features;
     }
 
+    @Override
+    public String getName() {
+        return Application.FeatureName;
+    }
+
     public ScriptExecutor getScriptExecutor() {
         return _scriptExecutor;
+    }
+
+    @Override
+    public boolean usesGroupedScriptFiles() {
+        return false;
     }
 }
