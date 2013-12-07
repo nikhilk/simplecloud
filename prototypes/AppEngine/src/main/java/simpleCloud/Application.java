@@ -6,9 +6,9 @@ package simpleCloud;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.servlet.*;
+import simpleCloud.core.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
-import simpleCloud.storage.*;
 
 public final class Application implements ServletContextListener, ApplicationFeature, ScriptFeature {
 

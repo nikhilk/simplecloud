@@ -1,7 +1,7 @@
 // LocalScriptLoader.java
 //
 
-package simpleCloud.storage;
+package simpleCloud.core;
 
 import java.io.*;
 import java.util.*;
