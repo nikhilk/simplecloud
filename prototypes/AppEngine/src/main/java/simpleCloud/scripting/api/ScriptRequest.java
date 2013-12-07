@@ -3,15 +3,31 @@
 
 package simpleCloud.scripting.api;
 
+import javax.servlet.http.*;
+import simpleCloud.*;
+import simpleCloud.services.*;
+
 public final class ScriptRequest {
 
-    private String _name;
+    private Application _app;
+    private HttpServletRequest _request;
 
-    public ScriptRequest(String name) {
-        _name = name;
+    private ScriptLog _log;
+
+    public ScriptRequest(Application app, HttpServletRequest request) {
+        _app = app;
+        _request = request;
+    }
+
+    public ScriptLog getLog() {
+        if (_log == null) {
+            _log = new ScriptLog(_app.getServletLog());
+        }
+
+        return _log;
     }
 
     public String getName() {
-        return _name;
+        return _request.getRequestURI();
     }
 }

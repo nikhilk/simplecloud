@@ -37,7 +37,7 @@ public final class ApplicationServlet extends HttpServlet {
         }
 
         try {
-            httpFeature.processRequest(request, response);
+            httpFeature.processRequest(getServletContext(), request, response);
         }
         catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

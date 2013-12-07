@@ -5,6 +5,7 @@ package simpleCloud.features;
 
 import java.util.*;
 import java.util.regex.*;
+import javax.servlet.*;
 import javax.servlet.http.*;
 import simpleCloud.*;
 import simpleCloud.scripting.api.*;
@@ -26,7 +27,8 @@ public final class ActionsFeature extends Feature implements HttpFeature, Script
         return true;
     }
 
-    public void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void processRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
 
         MatchResult match = (MatchResult)request.getAttribute(MatchResult.class.getName());
@@ -56,7 +58,7 @@ public final class ActionsFeature extends Feature implements HttpFeature, Script
             return;
         }
 
-        ScriptRequest scriptRequest = new ScriptRequest(resolvedName.getQualifiedName());
+        ScriptRequest scriptRequest = new ScriptRequest(getApplication(), request);
         String result = scriptExecutor.executeScript(resolvedName, /* sharedScript */ true, "request", scriptRequest);
 
         response.setStatus(HttpServletResponse.SC_OK);

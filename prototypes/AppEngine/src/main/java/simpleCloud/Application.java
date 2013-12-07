@@ -6,6 +6,7 @@ package simpleCloud;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.servlet.*;
+import com.google.apphosting.api.*;
 import simpleCloud.core.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
@@ -14,10 +15,14 @@ public final class Application implements ServletContextListener, ApplicationFea
 
     private static final String FeatureName = "code";
 
+    private LoggingService _log;
+
     private ArrayList<ApplicationFeature> _features;
     private ScriptExecutor _scriptExecutor;
 
     public Application() {
+        _log = new ApplicationLog();
+
         _features = createFeatures();
         _features.add(this);
 
@@ -67,6 +72,17 @@ public final class Application implements ServletContextListener, ApplicationFea
 
     public List<ApplicationFeature> getFeatures() {
         return _features;
+    }
+
+    public LoggingService getLog() {
+        return _log;
+    }
+
+    public LoggingService getServletLog() {
+        String requestID = ApiProxy.getCurrentEnvironment()
+                                   .getAttributes()
+                                   .get("com.google.appengine.runtime.request_log_id").toString();
+        return new ServletLog(requestID);
     }
 
     @Override
