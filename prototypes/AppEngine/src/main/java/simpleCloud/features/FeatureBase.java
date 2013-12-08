@@ -4,19 +4,20 @@
 package simpleCloud.features;
 
 import simpleCloud.*;
+import simpleCloud.services.*;
 
 public abstract class FeatureBase implements Feature {
 
     private String _name;
-    private Application _app;
+    private ServiceProvider _services;
 
-    protected FeatureBase(Application app, String name) {
-        _app = app;
+    protected FeatureBase(String name, ServiceProvider services) {
         _name = name;
+        _services = services;
     }
 
     protected final Application getApplication() {
-        return _app;
+        return _services.getService(Application.class);
     }
 
     @Override

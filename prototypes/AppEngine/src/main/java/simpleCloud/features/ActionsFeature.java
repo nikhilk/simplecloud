@@ -5,7 +5,6 @@ package simpleCloud.features;
 
 import java.util.*;
 import java.util.regex.*;
-import javax.servlet.*;
 import javax.servlet.http.*;
 import simpleCloud.*;
 import simpleCloud.scripting.api.*;
@@ -15,8 +14,8 @@ public final class ActionsFeature extends FeatureBase implements HttpFeature, Sc
 
     private static final String FeatureName = "actions";
 
-    public ActionsFeature(Application app) {
-        super(app, ActionsFeature.FeatureName);
+    public ActionsFeature(ServiceProvider services) {
+        super(ActionsFeature.FeatureName, services);
     }
 
     public Pattern getRoute() {
@@ -27,9 +26,9 @@ public final class ActionsFeature extends FeatureBase implements HttpFeature, Sc
         return true;
     }
 
-    public void processRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        ScriptExecutor scriptExecutor = getApplication().getScriptExecutor();
+    public void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        ServiceProvider services = (ServiceProvider)request.getAttribute(ServiceProvider.class.getName());
+        ScriptExecutor scriptExecutor = services.getService(ScriptExecutor.class);
 
         MatchResult match = (MatchResult)request.getAttribute(MatchResult.class.getName());
         String actionGroup = match.group(1);
@@ -58,7 +57,7 @@ public final class ActionsFeature extends FeatureBase implements HttpFeature, Sc
             return;
         }
 
-        ScriptRequest scriptRequest = new ScriptRequest(getApplication(), request);
+        ScriptRequest scriptRequest = new ScriptRequest(request);
         String result = scriptExecutor.executeScript(resolvedName, /* sharedScript */ true, "request", scriptRequest);
 
         response.setStatus(HttpServletResponse.SC_OK);

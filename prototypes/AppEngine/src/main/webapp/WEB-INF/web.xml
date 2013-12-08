@@ -2,16 +2,26 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://java.sun.com/xml/ns/javaee"
   xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+  version="2.5">
   <listener>
     <listener-class>simpleCloud.Application</listener-class>
   </listener>
+  <filter>
+    <filter-name>appFilter</filter-name>
+    <filter-class>simpleCloud.ApplicationFilter</filter-class>
+  </filter>
   <servlet>
-    <servlet-name>app</servlet-name>
+    <servlet-name>appServlet</servlet-name>
     <servlet-class>simpleCloud.ApplicationServlet</servlet-class>
   </servlet>
+
   <servlet-mapping>
-    <servlet-name>app</servlet-name>
+    <servlet-name>appServlet</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+  <filter-mapping>
+    <filter-name>appFilter</filter-name>
+    <servlet-name>appServlet</servlet-name>
+  </filter-mapping>
 </web-app>

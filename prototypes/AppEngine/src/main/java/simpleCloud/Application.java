@@ -6,27 +6,26 @@ package simpleCloud;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.servlet.*;
-import com.google.apphosting.api.*;
 import simpleCloud.core.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
 
-public final class Application implements ServletContextListener, Feature, ScriptFeature {
+public final class Application implements ServletContextListener, ServiceProvider, Feature, ScriptFeature {
 
     private static final String FeatureName = "code";
 
-    private LoggingService _log;
-
+    private HashMap<Class<?>, Object> _services;
     private ArrayList<Feature> _features;
-    private ScriptExecutor _scriptExecutor;
 
     public Application() {
-        _log = new ApplicationLog();
+        _services = new HashMap<Class<?>, Object>();
+        _services.put(Application.class, this);
+        _services.put(LoggingService.class, new ApplicationLog());
 
         _features = createFeatures();
         _features.add(this);
 
-        _scriptExecutor = createScriptExecutor();
+        _services.put(ScriptExecutor.class, createScriptExecutor());
     }
 
     @Override
@@ -36,7 +35,7 @@ public final class Application implements ServletContextListener, Feature, Scrip
     @Override
     public void contextInitialized(ServletContextEvent e) {
         ServletContext context = e.getServletContext();
-        context.setAttribute(Application.class.getName(), this);
+        context.setAttribute(ServiceProvider.class.getName(), this);
     }
 
     @SuppressWarnings("unchecked")
@@ -53,9 +52,9 @@ public final class Application implements ServletContextListener, Feature, Scrip
             String featureClassName = props.getProperty(name);
             try {
                 Class<Feature> featureClass = (Class<Feature>)Class.forName(featureClassName);
-                Constructor<Feature> featureCtor = featureClass.getConstructor(Application.class);
+                Constructor<Feature> featureCtor = featureClass.getConstructor(ServiceProvider.class);
 
-                features.add(featureCtor.newInstance(this));
+                features.add(featureCtor.newInstance((ServiceProvider)this));
             }
             catch (Exception ex) {
                 // TODO: Logging, rather than silently ignoring
@@ -74,24 +73,15 @@ public final class Application implements ServletContextListener, Feature, Scrip
         return _features;
     }
 
-    public LoggingService getLog() {
-        return _log;
-    }
-
-    public LoggingService getServletLog() {
-        String requestID = ApiProxy.getCurrentEnvironment()
-                                   .getAttributes()
-                                   .get("com.google.appengine.runtime.request_log_id").toString();
-        return new ServletLog(requestID);
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> serviceClass) {
+        return (T)_services.get(serviceClass);
     }
 
     @Override
     public String getName() {
         return Application.FeatureName;
-    }
-
-    public ScriptExecutor getScriptExecutor() {
-        return _scriptExecutor;
     }
 
     @Override
