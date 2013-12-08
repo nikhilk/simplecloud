@@ -1,4 +1,4 @@
-// ServletLog.java
+// ConsoleLog.java
 //
 
 package simpleCloud.core;
@@ -6,15 +6,19 @@ package simpleCloud.core;
 import java.util.logging.*;
 import simpleCloud.services.*;
 
-public final class ServletLog implements LoggingService {
+public final class ConsoleLog implements LoggingService {
 
     private Logger _logger;
     private String _messagePrefix;
 
-    public ServletLog(String requestID) {
+    public ConsoleLog() {
         _logger = Logger.getAnonymousLogger();
+        _messagePrefix = "";
+    }
 
-        _messagePrefix = requestID + ": ";
+    public ConsoleLog(String prefix) {
+        this();
+        _messagePrefix = prefix + ": ";
     }
 
     @Override

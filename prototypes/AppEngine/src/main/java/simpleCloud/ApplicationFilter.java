@@ -26,7 +26,7 @@ public final class ApplicationFilter implements Filter {
         String requestID = ApiProxy.getCurrentEnvironment()
                 .getAttributes()
                 .get("com.google.appengine.runtime.request_log_id").toString();
-        LoggingService log = new ServletLog(requestID);
+        LoggingService log = new ConsoleLog(requestID);
         services.registerService(LoggingService.class, log);
 
         chain.doFilter(request, response);

@@ -20,7 +20,7 @@ public final class Application implements ServletContextListener, ServiceProvide
     public Application() {
         _services = new HashMap<Class<?>, Object>();
         _services.put(Application.class, this);
-        _services.put(LoggingService.class, new ApplicationLog());
+        _services.put(LoggingService.class, new ConsoleLog());
 
         _features = createFeatures();
         _features.add(this);
