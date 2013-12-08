@@ -11,13 +11,13 @@ import simpleCloud.core.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
 
-public final class Application implements ServletContextListener, ApplicationFeature, ScriptFeature {
+public final class Application implements ServletContextListener, Feature, ScriptFeature {
 
     private static final String FeatureName = "code";
 
     private LoggingService _log;
 
-    private ArrayList<ApplicationFeature> _features;
+    private ArrayList<Feature> _features;
     private ScriptExecutor _scriptExecutor;
 
     public Application() {
@@ -40,8 +40,8 @@ public final class Application implements ServletContextListener, ApplicationFea
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<ApplicationFeature> createFeatures() {
-        ArrayList<ApplicationFeature> features = new ArrayList<ApplicationFeature>();
+    private ArrayList<Feature> createFeatures() {
+        ArrayList<Feature> features = new ArrayList<Feature>();
 
         Properties props = System.getProperties();
         for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
@@ -52,8 +52,8 @@ public final class Application implements ServletContextListener, ApplicationFea
 
             String featureClassName = props.getProperty(name);
             try {
-                Class<ApplicationFeature> featureClass = (Class<ApplicationFeature>)Class.forName(featureClassName);
-                Constructor<ApplicationFeature> featureCtor = featureClass.getConstructor(Application.class);
+                Class<Feature> featureClass = (Class<Feature>)Class.forName(featureClassName);
+                Constructor<Feature> featureCtor = featureClass.getConstructor(Application.class);
 
                 features.add(featureCtor.newInstance(this));
             }
@@ -70,7 +70,7 @@ public final class Application implements ServletContextListener, ApplicationFea
         return new MozillaScriptExecutor(this, loader);
     }
 
-    public List<ApplicationFeature> getFeatures() {
+    public List<Feature> getFeatures() {
         return _features;
     }
 

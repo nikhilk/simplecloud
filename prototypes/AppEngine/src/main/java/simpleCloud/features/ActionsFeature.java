@@ -11,7 +11,7 @@ import simpleCloud.*;
 import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
 
-public final class ActionsFeature extends Feature implements HttpFeature, ScriptFeature {
+public final class ActionsFeature extends FeatureBase implements HttpFeature, ScriptFeature {
 
     private static final String FeatureName = "actions";
 

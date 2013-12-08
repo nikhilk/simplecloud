@@ -21,7 +21,7 @@ public final class LocalScriptLoader implements ScriptLoader {
         List<ScriptName> allNames = new ArrayList<ScriptName>();
 
         File appFolder = new File("app");
-        for (ApplicationFeature feature : _app.getFeatures()) {
+        for (Feature feature : _app.getFeatures()) {
             if (feature instanceof ScriptFeature) {
                 String featureName = feature.getName();
 

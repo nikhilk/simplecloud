@@ -1,16 +1,16 @@
-// Feature.java
+// FeatureBase.java
 //
 
 package simpleCloud.features;
 
 import simpleCloud.*;
 
-public abstract class Feature implements ApplicationFeature {
+public abstract class FeatureBase implements Feature {
 
     private String _name;
     private Application _app;
 
-    protected Feature(Application app, String name) {
+    protected FeatureBase(Application app, String name) {
         _app = app;
         _name = name;
     }

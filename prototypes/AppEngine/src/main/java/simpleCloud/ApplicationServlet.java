@@ -18,7 +18,7 @@ public final class ApplicationServlet extends HttpServlet {
         HttpFeature httpFeature = null;
 
         String uri = request.getRequestURI();
-        for (ApplicationFeature feature : getApplication().getFeatures()) {
+        for (Feature feature : getApplication().getFeatures()) {
             if (feature instanceof HttpFeature) {
                 HttpFeature h = (HttpFeature)feature;
 
