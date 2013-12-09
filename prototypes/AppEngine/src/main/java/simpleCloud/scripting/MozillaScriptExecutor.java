@@ -12,6 +12,9 @@ import simpleCloud.services.*;
 
 public final class MozillaScriptExecutor implements ScriptExecutor {
 
+    private static final String modulesDirectoryName = "code";
+    private static final Object moduleLoadLock = new Object();
+
     private HashMap<ScriptName, Script> _scripts;
 
     private ContextFactory _contextFactory;
@@ -85,9 +88,9 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         StorageFile appDirectory = storage.getRoot();
 
         List<ScriptName> allNames;
-        StorageFile codeDirectory = appDirectory.getFile("code");
+        StorageFile codeDirectory = appDirectory.getFile(MozillaScriptExecutor.modulesDirectoryName);
         if (codeDirectory.isDirectory()) {
-            allNames = getScriptsFromDirectory("code", null, codeDirectory);
+            allNames = getScriptsFromDirectory(MozillaScriptExecutor.modulesDirectoryName, null, codeDirectory);
         }
         else {
             allNames = new ArrayList<ScriptName>();
@@ -239,6 +242,75 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
             }
 
             return super.get(name, scriptable);
+        }
+    }
+
+    @SuppressWarnings("serial")
+    final class RequireFunction extends BaseFunction {
+
+        private HashMap<ScriptName, Script> _scripts;
+        private HashMap<ScriptName, Object> _modules;
+
+        public RequireFunction(Scriptable scope, HashMap<ScriptName, Script> scripts) {
+            super(scope, ScriptableObject.getFunctionPrototype(scope));
+
+            _scripts = scripts;
+            _modules = new HashMap<ScriptName, Object>();
+        }
+
+        @Override
+        public Object call(Context context, Scriptable scope, Scriptable thisObj, Object[] args) {
+            if ((args.length != 1) || !(args[0] instanceof String)) {
+                throw Context.reportRuntimeError("require must be called with a single string argument");
+            }
+
+            String moduleName = (String)args[0];
+            ScriptName name = new ScriptName("code", null, moduleName);
+
+            Script script = _scripts.get(name);
+            if (script == null) {
+                throw Context.reportRuntimeError("Unknown code module named '" + moduleName + "'");
+            }
+
+            Object module = _modules.get(name);
+            if (module != null) {
+                return module;
+            }
+
+            synchronized (MozillaScriptExecutor.moduleLoadLock) {
+                module = _modules.get(name);
+                if (module != null) {
+                    return module;
+                }
+
+                return loadModule(context, name, script);
+            }
+        }
+
+        @Override
+        public int getArity() {
+            return 1;
+        }
+
+        private Object loadModule(Context context, ScriptName name, Script script) {
+            Scriptable globalScope = getParentScope();
+
+            Scriptable scope = context.newObject(globalScope);
+            scope.setPrototype(globalScope);
+            scope.setParentScope(null);
+
+            Scriptable exports = context.newObject(globalScope);
+            _modules.put(name, exports);
+
+            ScriptableObject.putProperty(scope, "exports", exports);
+            ScriptableObject.putProperty(scope, "require", this);
+
+            script.exec(context, scope);
+
+            Object module = ScriptableObject.getProperty(scope, "exports");
+            _modules.put(name, module);
+
+            return module;
         }
     }
 }
