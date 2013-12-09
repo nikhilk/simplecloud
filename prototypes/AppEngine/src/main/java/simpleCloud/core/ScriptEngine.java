@@ -1,7 +1,7 @@
-// MozillaScriptExecutor.java
+// ScriptEngine.java
 //
 
-package simpleCloud.scripting;
+package simpleCloud.core;
 
 import java.io.*;
 import java.util.*;
@@ -10,7 +10,7 @@ import simpleCloud.*;
 import simpleCloud.scripting.api.*;
 import simpleCloud.services.*;
 
-public final class MozillaScriptExecutor implements ScriptExecutor {
+public final class ScriptEngine implements ScriptExecutor {
 
     private static final String modulesDirectoryName = "code";
     private static final Object moduleLoadLock = new Object();
@@ -20,7 +20,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
-    public MozillaScriptExecutor(ServiceProvider services) {
+    public ScriptEngine(ServiceProvider services) {
         _contextFactory = new SandboxContextFactory();
 
         Application app = services.getService(Application.class);
@@ -88,9 +88,9 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         StorageFile appDirectory = storage.getRoot();
 
         List<ScriptName> allNames;
-        StorageFile codeDirectory = appDirectory.getFile(MozillaScriptExecutor.modulesDirectoryName);
+        StorageFile codeDirectory = appDirectory.getFile(ScriptEngine.modulesDirectoryName);
         if (codeDirectory.isDirectory()) {
-            allNames = getScriptsFromDirectory(MozillaScriptExecutor.modulesDirectoryName, null, codeDirectory);
+            allNames = getScriptsFromDirectory(ScriptEngine.modulesDirectoryName, null, codeDirectory);
         }
         else {
             allNames = new ArrayList<ScriptName>();
@@ -277,7 +277,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
                 return module;
             }
 
-            synchronized (MozillaScriptExecutor.moduleLoadLock) {
+            synchronized (ScriptEngine.moduleLoadLock) {
                 module = _modules.get(name);
                 if (module != null) {
                     return module;
