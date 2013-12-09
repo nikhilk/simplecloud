@@ -1,6 +1,2 @@
-# Runtime Settings
-logLevel: INFO
-
-# Application Settings
 helloGreeting: Hello
 byeGreeting: Goodbye

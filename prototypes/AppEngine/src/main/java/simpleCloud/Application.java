@@ -12,6 +12,7 @@ import simpleCloud.services.*;
 public final class Application implements ServletContextListener, ServiceProvider {
 
     private HashMap<Class<?>, Object> _services;
+    private Map<Object, Object> _config;
     private List<Feature> _features;
 
     public Application() {
@@ -19,7 +20,10 @@ public final class Application implements ServletContextListener, ServiceProvide
         _services.put(Application.class, this);
         _services.put(StorageService.class, new LocalStorage());
         _services.put(LoggingService.class, new ConsoleLog(this));
-        _services.put(ConfigurationService.class, new YamlConfiguration(this));
+
+        ConfigurationService configService = new YamlConfiguration(this);
+        _config = configService.getConfiguration("app");
+        _services.put(ConfigurationService.class, configService);
 
         _features = createFeatures();
 
@@ -40,26 +44,26 @@ public final class Application implements ServletContextListener, ServiceProvide
     private List<Feature> createFeatures() {
         ArrayList<Feature> features = new ArrayList<Feature>();
 
-        Properties props = System.getProperties();
-        for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
-            String name = (String)e.nextElement();
-            if (!name.startsWith("simpleCloud.feature")) {
-                continue;
-            }
+        List<String> featureNames = (List<String>)_config.get("features");
+        if (featureNames != null) {
+            for (String featureClassName : featureNames) {
+                try {
+                    Class<Feature> featureClass = (Class<Feature>)Class.forName(featureClassName);
+                    Constructor<Feature> featureCtor = featureClass.getConstructor(ServiceProvider.class);
 
-            String featureClassName = props.getProperty(name);
-            try {
-                Class<Feature> featureClass = (Class<Feature>)Class.forName(featureClassName);
-                Constructor<Feature> featureCtor = featureClass.getConstructor(ServiceProvider.class);
-
-                features.add(featureCtor.newInstance((ServiceProvider)this));
-            }
-            catch (Exception ex) {
-                // TODO: Logging, rather than silently ignoring
+                    features.add(featureCtor.newInstance((ServiceProvider)this));
+                }
+                catch (Exception ex) {
+                    // TODO: Logging, rather than silently ignoring
+                }
             }
         }
 
         return features;
+    }
+
+    public Map<Object, Object> getConfiguration() {
+        return _config;
     }
 
     public List<Feature> getFeatures() {

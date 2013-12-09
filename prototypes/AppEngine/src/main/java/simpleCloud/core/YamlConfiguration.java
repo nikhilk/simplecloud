@@ -45,26 +45,24 @@ public final class YamlConfiguration implements ConfigurationService {
     @SuppressWarnings("unchecked")
     private Map<Object, Object> loadConfiguration(String name) {
         StorageFile configDirectory = _storage.getRoot().getFile("config");
-        if (!configDirectory.isDirectory()) {
-            return null;
-        }
+        if (configDirectory.isDirectory()) {
+            String configFileName = name + ".yaml";
+            StorageFile configFile = configDirectory.getFile(configFileName);
 
-        String configFileName = name + ".yaml";
-        StorageFile configFile = configDirectory.getFile(configFileName);
+            if (configFile.exists()) {
+                try {
+                    String yamlContent = configFile.getContent();
 
-        if (configFile.exists()) {
-            try {
-                String yamlContent = configFile.getContent();
-
-                Yaml yamlParser = new Yaml(new ConfigConstructor());
-                return (Map<Object, Object>)yamlParser.load(yamlContent);
-            }
-            catch (IOException e) {
-                // TODO: Log error
+                    Yaml yamlParser = new Yaml(new ConfigConstructor());
+                    return (Map<Object, Object>)yamlParser.load(yamlContent);
+                }
+                catch (IOException e) {
+                    // TODO: Log error
+                }
             }
         }
 
-        return null;
+        return new HashMap<Object, Object>();
     }
 
     private final class ConfigConstructor extends Constructor {

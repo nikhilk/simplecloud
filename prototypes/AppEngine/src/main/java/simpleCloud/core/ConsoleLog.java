@@ -3,8 +3,8 @@
 
 package simpleCloud.core;
 
-import java.util.*;
 import java.util.logging.*;
+import simpleCloud.*;
 import simpleCloud.services.*;
 
 public final class ConsoleLog implements LoggingService {
@@ -24,14 +24,12 @@ public final class ConsoleLog implements LoggingService {
         this(services);
         _messagePrefix = prefix + ": ";
 
-        ConfigurationService configService = services.getService(ConfigurationService.class);
-        Map<Object, Object> config = configService.getConfiguration();
+        // TODO: Avoid doing this per request
 
-        if (config != null) {
-            String level = (String)config.get("logLevel");
-            if (level != null) {
-                _logger.setLevel(Level.parse(level));
-            }
+        Application app = services.getService(Application.class);
+        String level = (String)app.getConfiguration().get("logLevel");
+        if (level != null) {
+            _logger.setLevel(Level.parse(level));
         }
     }
 
