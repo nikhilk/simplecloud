@@ -35,7 +35,7 @@ public final class ScriptEngine implements ScriptExecutor {
             @Override
             public Object run(Context scriptContext) {
                 ScriptableObject global = new TopLevel();
-                ScriptApplication appObject = new ScriptApplication(app);
+                ScriptApplication appObject = new ScriptApplication(app, scriptContext, global);
 
                 scriptContext.initStandardObjects(global, true);
                 ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
