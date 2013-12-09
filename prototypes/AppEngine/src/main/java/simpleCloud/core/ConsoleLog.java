@@ -13,8 +13,6 @@ public final class ConsoleLog implements LoggingService {
     private String _messagePrefix;
 
     public ConsoleLog(ServiceProvider services) {
-        Logger.getGlobal().setLevel(Level.SEVERE);
-
         _logger = Logger.getAnonymousLogger();
         _logger.setLevel(Level.SEVERE);
         _messagePrefix = "";
