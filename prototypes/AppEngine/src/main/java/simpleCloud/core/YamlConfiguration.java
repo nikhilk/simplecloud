@@ -22,6 +22,11 @@ public final class YamlConfiguration implements ConfigurationService {
     }
 
     @Override
+    public Map<Object, Object> getConfiguration() {
+        return getConfiguration("settings");
+    }
+
+    @Override
     public Map<Object, Object> getConfiguration(String name) {
         if (!_configData.containsKey(name)) {
             synchronized (YamlConfiguration.configLoadingLock) {

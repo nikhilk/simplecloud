@@ -18,8 +18,8 @@ public final class Application implements ServletContextListener, ServiceProvide
         _services = new HashMap<Class<?>, Object>();
         _services.put(Application.class, this);
         _services.put(StorageService.class, new LocalStorage());
+        _services.put(LoggingService.class, new ConsoleLog(this));
         _services.put(ConfigurationService.class, new YamlConfiguration(this));
-        _services.put(LoggingService.class, new ConsoleLog());
 
         _features = createFeatures();
 

@@ -14,7 +14,7 @@ public final class ScriptApplication {
 
     public ScriptApplication(Application app, Context context, Scriptable global) {
         ConfigurationService configService = app.getService(ConfigurationService.class);
-        Map<Object, Object> configSettings = configService.getConfiguration("settings");
+        Map<Object, Object> configSettings = configService.getConfiguration();
 
         if (configSettings != null) {
             _settings = (ScriptableObject)context.newObject(global);
