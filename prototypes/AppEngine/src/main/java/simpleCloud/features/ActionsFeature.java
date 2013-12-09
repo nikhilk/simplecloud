@@ -10,7 +10,7 @@ import simpleCloud.*;
 import simpleCloud.api.*;
 import simpleCloud.services.*;
 
-public final class ActionsFeature extends FeatureBase implements HttpFeature, ScriptFeature {
+public final class ActionsFeature extends Feature implements HttpFeature, ScriptFeature {
 
     private static final String FeatureName = "actions";
 
