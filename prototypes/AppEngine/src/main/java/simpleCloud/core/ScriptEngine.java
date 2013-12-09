@@ -218,7 +218,7 @@ public final class ScriptEngine implements ScriptExecutor {
         }
     }
 
-    public final class SandboxWrapFactory extends WrapFactory {
+    private final class SandboxWrapFactory extends WrapFactory {
 
         @Override
         public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object object, Class<?> objectType) {
@@ -227,7 +227,7 @@ public final class ScriptEngine implements ScriptExecutor {
     }
 
     @SuppressWarnings("serial")
-    public final class SandboxNativeJavaObject extends NativeJavaObject {
+    private final class SandboxNativeJavaObject extends NativeJavaObject {
 
         public SandboxNativeJavaObject(Scriptable scope, Object object, Class<?> objectType) {
             super(scope, object, objectType);
@@ -246,7 +246,7 @@ public final class ScriptEngine implements ScriptExecutor {
     }
 
     @SuppressWarnings("serial")
-    final class RequireFunction extends BaseFunction {
+    private final class RequireFunction extends BaseFunction {
 
         private HashMap<ScriptName, Script> _scripts;
         private HashMap<ScriptName, Object> _modules;
