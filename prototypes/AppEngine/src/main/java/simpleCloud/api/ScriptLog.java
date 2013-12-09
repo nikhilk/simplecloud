@@ -1,7 +1,7 @@
 // ScriptLog.java
 //
 
-package simpleCloud.scripting.api;
+package simpleCloud.api;
 
 import simpleCloud.services.*;
 

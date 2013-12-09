@@ -1,7 +1,7 @@
 // ScriptRequest.java
 //
 
-package simpleCloud.scripting.api;
+package simpleCloud.api;
 
 import javax.servlet.http.*;
 import simpleCloud.services.*;

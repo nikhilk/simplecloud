@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import org.mozilla.javascript.*;
 import simpleCloud.*;
-import simpleCloud.scripting.api.*;
+import simpleCloud.api.*;
 import simpleCloud.services.*;
 
 public final class ScriptEngine implements ScriptExecutor {
