@@ -21,7 +21,7 @@ public final class Application implements ServletContextListener, ServiceProvide
         _services.put(StorageService.class, new LocalStorage());
         _services.put(LoggingService.class, new ConsoleLog(this));
 
-        ConfigurationService configService = new YamlConfiguration(this);
+        ConfigurationService configService = new Configuration(this);
         _config = configService.getConfiguration("app");
         _services.put(ConfigurationService.class, configService);
 

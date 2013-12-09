@@ -1,4 +1,4 @@
-// YamlConfiguration.java
+// Configuration.java
 //
 
 package simpleCloud.core;
@@ -9,14 +9,14 @@ import org.yaml.snakeyaml.*;
 import org.yaml.snakeyaml.constructor.*;
 import simpleCloud.services.*;
 
-public final class YamlConfiguration implements ConfigurationService {
+public final class Configuration implements ConfigurationService {
 
     private static final Object configLoadingLock = new Object();
 
     private StorageService _storage;
     private HashMap<String, Map<Object, Object>> _configData;
 
-    public YamlConfiguration(ServiceProvider services) {
+    public Configuration(ServiceProvider services) {
         _storage = services.getService(StorageService.class);
         _configData = new HashMap<String, Map<Object, Object>>();
     }
@@ -29,7 +29,7 @@ public final class YamlConfiguration implements ConfigurationService {
     @Override
     public Map<Object, Object> getConfiguration(String name) {
         if (!_configData.containsKey(name)) {
-            synchronized (YamlConfiguration.configLoadingLock) {
+            synchronized (Configuration.configLoadingLock) {
                 if (!_configData.containsKey(name)) {
                     Map<Object, Object> config = loadConfiguration(name);
 
