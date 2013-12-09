@@ -3,6 +3,7 @@
 
 package simpleCloud.scripting;
 
+import java.io.*;
 import java.util.*;
 import org.mozilla.javascript.*;
 import simpleCloud.*;
@@ -16,10 +17,13 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
     private ContextFactory _contextFactory;
     private ScriptableObject _sharedGlobal;
 
-    public MozillaScriptExecutor(Application app, ScriptLoader loader) {
+    public MozillaScriptExecutor(ServiceProvider services) {
         _contextFactory = new SandboxContextFactory();
 
-        _scripts = loadScripts(loader);
+        Application app = services.getService(Application.class);
+        StorageService storage = services.getService(StorageService.class);
+
+        _scripts = loadScripts(app, storage);
         _sharedGlobal = createGlobalObject(app);
     }
 
@@ -32,7 +36,7 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
 
                 scriptContext.initStandardObjects(global, true);
                 ScriptableObject.putProperty(global, "app", Context.javaToJS(appObject, global));
-                ScriptableObject.putProperty(global, "require", new RequireFunction(global, _scripts, app.getName()));
+                ScriptableObject.putProperty(global, "require", new RequireFunction(global, _scripts));
 
                 global.sealObject();
                 return global;
@@ -77,16 +81,80 @@ public final class MozillaScriptExecutor implements ScriptExecutor {
         }
     }
 
+    private List<ScriptName> findScripts(Application app, StorageService storage) {
+        StorageFile appDirectory = storage.getRoot();
+
+        List<ScriptName> allNames;
+        StorageFile codeDirectory = appDirectory.getFile("code");
+        if (codeDirectory.isDirectory()) {
+            allNames = getScriptsFromDirectory("code", null, codeDirectory);
+        }
+        else {
+            allNames = new ArrayList<ScriptName>();
+        }
+
+        for (Feature feature : app.getFeatures()) {
+            if (!(feature instanceof ScriptFeature)) {
+                continue;
+            }
+
+            String featureName = feature.getName();
+
+            StorageFile featureDirectory = appDirectory.getFile(featureName);
+            if (!featureDirectory.isDirectory()) {
+                continue;
+            }
+
+            if (((ScriptFeature)feature).usesGroupedScriptFiles()) {
+                for (StorageFile groupDirectory : featureDirectory.getFiles()) {
+                    if (!(groupDirectory.isDirectory())) {
+                        continue;
+                    }
+
+                    List<ScriptName> names = getScriptsFromDirectory(featureName, groupDirectory.getName(), groupDirectory);
+                    allNames.addAll(names);
+                }
+            }
+            else {
+                List<ScriptName> names = getScriptsFromDirectory(featureName, null, featureDirectory);
+                allNames.addAll(names);
+            }
+        }
+
+        return allNames;
+    }
+
+    private List<ScriptName> getScriptsFromDirectory(String featureName, String groupName, StorageFile directory) {
+        List<ScriptName> names = new ArrayList<ScriptName>();
+
+        for (StorageFile file : directory.getFiles()) {
+            if (file.isDirectory()) {
+                continue;
+            }
+
+            try {
+                ScriptName name = new ScriptName(featureName, groupName, file.getName(),
+                                                 file.getContent());
+                names.add(name);
+            }
+            catch (IOException e) {
+                // TODO: Error logging
+            }
+        }
+
+        return names;
+    }
+
     @SuppressWarnings("unchecked")
-    private HashMap<ScriptName, Script> loadScripts(final ScriptLoader loader) {
+    private HashMap<ScriptName, Script> loadScripts(final Application app, final StorageService storage) {
         return (HashMap<ScriptName, Script>)_contextFactory.call(new ContextAction() {
             @Override
             public Object run(Context scriptContext) {
                 HashMap<ScriptName, Script> scripts = new HashMap<ScriptName, Script>();
 
-                for (ScriptName name : loader.getNames()) {
+                for (ScriptName name : findScripts(app, storage)) {
                     try {
-                        String scriptSource = loader.loadScript(name);
+                        String scriptSource = (String)name.getObject();
                         Script script = scriptContext.compileString(scriptSource, name.getName(), 1, null);
 
                         scripts.put(name, script);

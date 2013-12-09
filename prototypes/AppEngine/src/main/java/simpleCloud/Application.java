@@ -10,22 +10,20 @@ import simpleCloud.core.*;
 import simpleCloud.scripting.*;
 import simpleCloud.services.*;
 
-public final class Application implements ServletContextListener, ServiceProvider, Feature, ScriptFeature {
-
-    private static final String FeatureName = "code";
+public final class Application implements ServletContextListener, ServiceProvider {
 
     private HashMap<Class<?>, Object> _services;
-    private ArrayList<Feature> _features;
+    private List<Feature> _features;
 
     public Application() {
         _services = new HashMap<Class<?>, Object>();
         _services.put(Application.class, this);
+        _services.put(StorageService.class, new LocalStorage());
         _services.put(LoggingService.class, new ConsoleLog());
 
         _features = createFeatures();
-        _features.add(this);
 
-        _services.put(ScriptExecutor.class, createScriptExecutor());
+        _services.put(ScriptExecutor.class, new MozillaScriptExecutor(this));
     }
 
     @Override
@@ -39,7 +37,7 @@ public final class Application implements ServletContextListener, ServiceProvide
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<Feature> createFeatures() {
+    private List<Feature> createFeatures() {
         ArrayList<Feature> features = new ArrayList<Feature>();
 
         Properties props = System.getProperties();
@@ -64,11 +62,6 @@ public final class Application implements ServletContextListener, ServiceProvide
         return features;
     }
 
-    private ScriptExecutor createScriptExecutor() {
-        ScriptLoader loader = new LocalScriptLoader(this);
-        return new MozillaScriptExecutor(this, loader);
-    }
-
     public List<Feature> getFeatures() {
         return _features;
     }
@@ -77,15 +70,5 @@ public final class Application implements ServletContextListener, ServiceProvide
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> serviceClass) {
         return (T)_services.get(serviceClass);
-    }
-
-    @Override
-    public String getName() {
-        return Application.FeatureName;
-    }
-
-    @Override
-    public boolean usesGroupedScriptFiles() {
-        return false;
     }
 }

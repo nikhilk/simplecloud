@@ -14,14 +14,11 @@ final class RequireFunction extends BaseFunction {
 
     private HashMap<ScriptName, Script> _scripts;
     private HashMap<ScriptName, Object> _modules;
-    private String _codeFeature;
 
-    public RequireFunction(Scriptable scope, HashMap<ScriptName, Script> scripts, String codeFeature) {
+    public RequireFunction(Scriptable scope, HashMap<ScriptName, Script> scripts) {
         super(scope, ScriptableObject.getFunctionPrototype(scope));
 
         _scripts = scripts;
-        _codeFeature = codeFeature;
-
         _modules = new HashMap<ScriptName, Object>();
     }
 
@@ -32,7 +29,7 @@ final class RequireFunction extends BaseFunction {
         }
 
         String moduleName = (String)args[0];
-        ScriptName name = new ScriptName(_codeFeature, null, moduleName);
+        ScriptName name = new ScriptName("code", null, moduleName);
 
         Script script = _scripts.get(name);
         if (script == null) {
