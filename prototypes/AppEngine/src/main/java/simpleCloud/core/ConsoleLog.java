@@ -13,8 +13,13 @@ public final class ConsoleLog implements LoggingService {
     private String _messagePrefix;
 
     public ConsoleLog(ServiceProvider services) {
-        _logger = Logger.getAnonymousLogger();
+        _logger = Logger.getLogger("console");
         _logger.setLevel(Level.SEVERE);
+
+        for (Handler handler : _logger.getHandlers()) {
+            handler.setFormatter(new SimpleFormatter());
+        }
+
         _messagePrefix = "";
     }
 
@@ -48,5 +53,14 @@ public final class ConsoleLog implements LoggingService {
 
     private String qualifyMessage(String message) {
         return _messagePrefix + message;
+    }
+
+
+    private final class SimpleFormatter extends Formatter {
+
+        @Override
+        public String format(LogRecord log) {
+            return log.getMessage();
+        }
     }
 }
