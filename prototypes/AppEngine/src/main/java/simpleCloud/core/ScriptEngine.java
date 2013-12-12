@@ -48,7 +48,7 @@ public final class ScriptEngine implements ScriptExecutor {
     }
 
     @Override
-    public String executeScript(final ScriptName name, final boolean useSharedScript,
+    public Object executeScript(final ScriptName name, final boolean useSharedScript,
                                 final String objectKey, final Object object) throws ScriptException {
         final Script script = _scripts.get(name);
         if (script == null) {
@@ -56,7 +56,7 @@ public final class ScriptEngine implements ScriptExecutor {
         }
 
         try {
-            return (String)_contextFactory.call(new ContextAction() {
+            return _contextFactory.call(new ContextAction() {
                 @Override
                 public Object run(Context scriptContext) {
                     Scriptable scope = scriptContext.newObject(_sharedGlobal);
@@ -75,11 +75,18 @@ public final class ScriptEngine implements ScriptExecutor {
                     }
 
                     Object result = script.exec(scriptContext, scope);
-                    return Context.toString(result);
+                    if (result == Context.getUndefinedValue()) {
+                        return null;
+                    }
+
+                    return result;
                 }
             });
         }
         catch (RhinoException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
             throw new ScriptException("Unable to execute script.", e);
         }
     }
@@ -209,6 +216,9 @@ public final class ScriptEngine implements ScriptExecutor {
 
             _allowedNames = new HashSet<String>();
             _allowedNames.add(String.class.getName());
+            _allowedNames.add(Double.class.getName());
+            _allowedNames.add(Integer.class.getName());
+            _allowedNames.add(Boolean.class.getName());
         }
 
         public boolean visibleToScripts(String name) {
@@ -219,6 +229,12 @@ public final class ScriptEngine implements ScriptExecutor {
     }
 
     private final class SandboxWrapFactory extends WrapFactory {
+
+        public SandboxWrapFactory() {
+            // Don't wrap primitives into objects which get converted to strings on the javascript
+            // side. For instance, keep numbers as numbers.
+            setJavaPrimitiveWrap(false);
+        }
 
         @Override
         public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object object, Class<?> objectType) {

@@ -52,6 +52,8 @@ public final class ApplicationServlet extends HttpServlet {
             feature.processRequest(request, response);
         }
         catch (Exception e) {
+            e.printStackTrace();
+
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("text/plain");
             response.getWriter().println(e.getMessage());

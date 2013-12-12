@@ -8,7 +8,9 @@ import simpleCloud.services.*;
 
 public final class ScriptRequest {
 
-    private HttpServletRequest _request;
+    private final HttpServletRequest _request;
+    private Object _result;
+    private boolean _validResult;
 
     private ScriptLog _log;
 
@@ -27,5 +29,18 @@ public final class ScriptRequest {
 
     public String getName() {
         return _request.getRequestURI();
+    }
+
+    public Object getResult() {
+        return _result;
+    }
+
+    public boolean hasResult() {
+        return _validResult;
+    }
+
+    public void setResult(Object value) {
+        _result = value;
+        _validResult = true;
     }
 }

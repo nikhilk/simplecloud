@@ -58,10 +58,19 @@ public final class ActionsFeature extends Feature implements HttpFeature, Script
         }
 
         ScriptRequest scriptRequest = new ScriptRequest(request);
-        String result = scriptExecutor.executeScript(resolvedName, /* sharedScript */ true, "request", scriptRequest);
+        Object result = scriptExecutor.executeScript(resolvedName, /* sharedScript */ true, "request", scriptRequest);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("text/plain");
-        response.getWriter().println(result);
+        if (scriptRequest.hasResult()) {
+            result = scriptRequest.getResult();
+        }
+
+        if (result != null) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("text/plain");
+            response.getWriter().println(result.toString());
+        }
+        else {
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        }
     }
 }
