@@ -10,9 +10,13 @@ import simpleCloud.services.*;
 
 public final class ScriptApplication {
 
+    private final Application _app;
     private final ScriptableObject _settings;
+    private ScriptCache _cache;
 
     public ScriptApplication(Application app, Context context, Scriptable global) {
+        _app = app;
+
         ConfigurationService configService = app.getService(ConfigurationService.class);
         Map<Object, Object> configSettings = configService.getConfiguration();
 
@@ -28,6 +32,14 @@ public final class ScriptApplication {
         else {
             _settings = null;
         }
+    }
+
+    public ScriptCache getCache() {
+        if (_cache == null) {
+            _cache = new ScriptCache((ServiceProvider)_app);
+        }
+
+        return _cache;
     }
 
     public String getName() {

@@ -31,6 +31,10 @@ public final class ScriptRequest {
         return _request.getRequestURI();
     }
 
+    public String getParameter(String name) {
+        return _request.getParameter(name);
+    }
+
     public Object getResult() {
         return _result;
     }
