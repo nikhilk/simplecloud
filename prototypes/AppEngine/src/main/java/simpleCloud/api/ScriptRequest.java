@@ -27,7 +27,11 @@ public final class ScriptRequest {
         return _log;
     }
 
-    public String getName() {
+    public String getMethod() {
+        return _request.getMethod();
+    }
+
+    public String getPath() {
         return _request.getRequestURI();
     }
 
