@@ -1,3 +1,4 @@
 logLevel: INFO
 features:
   - simpleCloud.features.ActionsFeature
+  - simpleCloud.features.DataFeature
