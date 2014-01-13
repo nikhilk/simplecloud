@@ -1,7 +1,7 @@
 // DataFeature.java
 //
 
-package simpleCloud.features;
+package simpleCloud.features.data;
 
 import java.util.regex.*;
 import javax.servlet.http.*;

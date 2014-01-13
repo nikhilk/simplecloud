@@ -1,7 +1,7 @@
 // ActionsFeature.java
 //
 
-package simpleCloud.features;
+package simpleCloud.features.actions;
 
 import java.util.*;
 import java.util.regex.*;
