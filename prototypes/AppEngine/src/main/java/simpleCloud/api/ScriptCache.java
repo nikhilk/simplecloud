@@ -4,7 +4,6 @@
 package simpleCloud.api;
 
 import java.util.*;
-import org.mozilla.javascript.Context;
 import com.google.appengine.api.memcache.*;
 import simpleCloud.services.*;
 

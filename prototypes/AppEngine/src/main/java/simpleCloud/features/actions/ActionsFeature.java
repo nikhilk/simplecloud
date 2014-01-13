@@ -41,7 +41,7 @@ public final class ActionsFeature extends Feature implements HttpFeature, Script
             candidateNames.add(name);
         }
         else {
-            if (actionMethod == "POST") {
+            if (actionMethod == HttpFeature.HttpMethods.POST) {
                 ScriptName simpleName = new ScriptName(ActionsFeature.FeatureName, actionGroup, actionName);
                 candidateNames.add(simpleName);
             }
